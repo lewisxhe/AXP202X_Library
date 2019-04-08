@@ -440,7 +440,13 @@ bool AXP20X_Class::isPEKLongtPressIRQ()
     return (bool)(_irq[2] & BIT_MASK(0));
 }
 
-
+bool AXP20X_Class::isVBUSPlug()
+{
+    if (!_init)return AXP202_NOT_INIT;
+    uint8_t val;
+    _readByte(AXP202_STATUS, 1, &val);
+    return (bool)(_irq[2] & BIT_MASK(5));
+}
 
 int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
 {
@@ -658,7 +664,7 @@ int AXP20X_Class::debugCharging()
 int AXP20X_Class::debugStatus()
 {
     if (!_init)return AXP202_NOT_INIT;
-    uint8_t val,val1,val2;
+    uint8_t val, val1, val2;
     _readByte(AXP202_STATUS, 1, &val);
     _readByte(AXP202_MODE_CHGSTATUS, 1, &val1);
     _readByte(AXP202_IPS_SET, 1, &val2);

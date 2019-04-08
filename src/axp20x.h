@@ -358,7 +358,8 @@ public:
     bool isDCDC3Enable();
     bool isDCDC2Enable();
     bool isChargeingEnable();
-
+    bool isVBUSPlug();
+    
     //IRQ Status
     bool isAcinOverVoltageIRQ();
     bool isAcinPlugInIRQ();
