@@ -533,6 +533,21 @@ int AXP20X_Class::setLDO4Voltage(axp_ldo4_table_t param)
     return AXP202_PASS;
 }
 
+// 0 : LDO  1 : DCIN
+int AXP20X_Class::setLDO3Mode(uint8_t mode)
+{
+    uint8_t val;
+    _readByte(AXP202_LDO3OUT_VOL, 1, &val);
+    if (mode) {
+        val |= BIT_MASK(7);
+    } else {
+        val &= (~BIT_MASK(7));
+    }
+    _writeByte(AXP202_LDO3OUT_VOL, 1, &val);
+    return AXP202_PASS;
+
+}
+
 int AXP20X_Class::setStartupTime(uint8_t param)
 {
     uint8_t val;

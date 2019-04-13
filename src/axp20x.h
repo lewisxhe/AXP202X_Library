@@ -282,6 +282,11 @@ typedef enum {
     AXP202_GPIO0_FUNC_ADC2   = 1 << 2
 } axp_adc2_func_t;
 
+enum{
+    AXP202_LDO3_MODE_LDO,
+    AXP202_LDO3_MODE_DCIN
+};
+
 
 typedef enum {
     //IRQ1
@@ -359,7 +364,7 @@ public:
     bool isDCDC2Enable();
     bool isChargeingEnable();
     bool isVBUSPlug();
-    
+
     //IRQ Status
     bool isAcinOverVoltageIRQ();
     bool isAcinPlugInIRQ();
@@ -419,6 +424,9 @@ public:
     int setLDO2Voltage(uint16_t mv);
     int setLDO3Voltage(uint16_t mv);
     int setLDO4Voltage(axp_ldo4_table_t param);
+
+    // 0 : LDO  1 : DCIN
+    int setLDO3Mode(uint8_t mode);
 
     int getBattPercentage();
 
