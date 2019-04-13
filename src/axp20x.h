@@ -282,7 +282,7 @@ typedef enum {
     AXP202_GPIO0_FUNC_ADC2   = 1 << 2
 } axp_adc2_func_t;
 
-enum{
+enum {
     AXP202_LDO3_MODE_LDO,
     AXP202_LDO3_MODE_DCIN
 };
