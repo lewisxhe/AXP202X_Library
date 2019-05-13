@@ -64,19 +64,17 @@ uint8_t AXP20X_Class::_outputReg;
 
 int AXP20X_Class::begin(TwoWire &port, uint8_t addr)
 {
-    uint8_t chip_id;
-    _i2cPort = &port; //Grab which port the user wants us to use
+    _i2cPort = &port;   //Grab which port the user wants us to use
     _address = addr;
-    _readByte(AXP202_IC_TYPE, 1, &chip_id);
-    if ((chip_id & 0x0f) == 0x1) {
-        AXP_DEBUG("chip id detect 0x%x\n", chip_id);
+    _readByte(AXP202_IC_TYPE, 1, &_chip_id);
+    AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
+        AXP_DEBUG("Detect CHIP :%s\n", _chip_id == AXP202_CHIP_ID ? "AXP202" : "AXP192");
         _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
+        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
         _init = true;
-        return AXP202_PASS;
-    } else {
-        AXP_DEBUG("chip id not detect 0x%x\n", chip_id);
-        return AXP202_FAIL;
     }
+    return _init ? AXP_PASS : AXP_FAIL;
 }
 
 bool AXP20X_Class::isLDO2Enable()
@@ -108,7 +106,7 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
 {
     uint8_t data;
     uint8_t val = 0;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
 
     _readByte(AXP202_LDO234_DC23_CTL, 1, &data);
     if (en) {
@@ -124,28 +122,36 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
     _readByte(AXP202_LDO234_DC23_CTL, 1, &val);
     if (data == val) {
         _outputReg = val;
-        return AXP202_PASS;
+        return AXP_PASS;
     }
-    return AXP202_FAIL;
+    return AXP_FAIL;
 }
 
 bool AXP20X_Class::isChargeing()
 {
     uint8_t reg;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_MODE_CHGSTATUS, 1, &reg);
     return IS_OPEN(reg, 6);
 }
 
+bool AXP20X_Class::isBatteryConnect()
+{
+    uint8_t reg;
+    if (!_init)return AXP_NOT_INIT;
+    _readByte(AXP202_MODE_CHGSTATUS, 1, &reg);
+    return IS_OPEN(reg, 5);
+}
+
 float AXP20X_Class::getAcinVoltage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_ACIN_VOL_H8, AXP202_ACIN_VOL_L4) * AXP202_ACIN_VOLTAGE_STEP;
 }
 
 float AXP20X_Class::getAcinCurrent()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     float rslt;
     uint8_t hv, lv;
     return _getRegistResult(AXP202_ACIN_CUR_H8, AXP202_ACIN_CUR_L4) * AXP202_ACIN_CUR_STEP;
@@ -153,19 +159,19 @@ float AXP20X_Class::getAcinCurrent()
 
 float AXP20X_Class::getVbusVoltage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_VBUS_VOL_H8, AXP202_VBUS_VOL_L4) * AXP202_VBUS_VOLTAGE_STEP;
 }
 
 float AXP20X_Class::getVbusCurrent()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_VBUS_CUR_H8, AXP202_VBUS_CUR_L4) * AXP202_VBUS_CUR_STEP;
 }
 
 float AXP20X_Class::getTemp()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t hv, lv;
     _readByte(AXP202_INTERNAL_TEMP_H8, 1, &hv);
     _readByte(AXP202_INTERNAL_TEMP_L4, 1, &lv);
@@ -175,19 +181,19 @@ float AXP20X_Class::getTemp()
 
 float AXP20X_Class::getTSTemp()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_TS_IN_H8, AXP202_TS_IN_L4) * AXP202_TS_PIN_OUT_STEP;
 }
 
 float AXP20X_Class::getGPIO0Voltage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_GPIO0_VOL_ADC_H8, AXP202_GPIO0_VOL_ADC_L4) * AXP202_GPIO0_STEP;
 }
 
 float AXP20X_Class::getGPIO1Voltage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_GPIO1_VOL_ADC_H8, AXP202_GPIO1_VOL_ADC_L4) * AXP202_GPIO1_STEP;
 }
 
@@ -200,7 +206,7 @@ float AXP20X_Class::getBattInpower()
 {
     float rslt;
     uint8_t hv, mv, lv;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_BAT_POWERH8, 1, &hv);
     _readByte(AXP202_BAT_POWERM8, 1, &mv);
     _readByte(AXP202_BAT_POWERL8, 1, &lv);
@@ -211,22 +217,29 @@ float AXP20X_Class::getBattInpower()
 
 float AXP20X_Class::getBattVoltage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     return _getRegistResult(AXP202_BAT_AVERVOL_H8, AXP202_BAT_AVERVOL_L4) * AXP202_BATT_VOLTAGE_STEP;
 
 }
 
 float AXP20X_Class::getBattChargeCurrent()
 {
-    if (!_init)return AXP202_NOT_INIT;
-    return _getRegistResult(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L4) * AXP202_BATT_CHARGE_CUR_STEP;
+    if (!_init)return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        return _getRegistResult(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L4) * AXP202_BATT_CHARGE_CUR_STEP;
+    case AXP192_CHIP_ID:
+        return _getRegistH8L5(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L4) * AXP202_BATT_CHARGE_CUR_STEP;
+    default:
+        break;
+    }
 }
 
 float AXP20X_Class::getBattDischargeCurrent()
 {
     float rslt;
     uint8_t hv, lv;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_BAT_AVERDISCHGCUR_H8, 1, &hv);
     _readByte(AXP202_BAT_AVERDISCHGCUR_L5, 1, &lv);
     rslt = (hv << 5) | (lv & 0x1F);
@@ -237,7 +250,7 @@ float AXP20X_Class::getSysIPSOUTVoltage()
 {
     float rslt;
     uint8_t hv, lv;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_APS_AVERVOL_H8, 1, &hv);
     _readByte(AXP202_APS_AVERVOL_L4, 1, &lv);
     rslt = (hv << 4) | (lv & 0xF);
@@ -253,20 +266,20 @@ C= 65536 * current LSB *（charge coulomb counter value - discharge coulomb coun
 float AXP20X_Class::getBattChargeCoulomb()
 {
     float rslt;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     //TODO
 }
 
 float AXP20X_Class::getBattDischargeCoulomb()
 {
     float rslt;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     //TODO
 }
 
 int AXP20X_Class::adc1Enable(uint16_t params, bool en)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val;
     _readByte(AXP202_ADC_EN1, 1, &val);
     if (en)
@@ -276,12 +289,12 @@ int AXP20X_Class::adc1Enable(uint16_t params, bool en)
     _writeByte(AXP202_ADC_EN1, 1, &val);
 
     _readByte(AXP202_ADC_EN1, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::adc2Enable(uint16_t params, bool en)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val;
     _readByte(AXP202_ADC_EN2, 1, &val);
     if (en)
@@ -289,14 +302,14 @@ int AXP20X_Class::adc2Enable(uint16_t params, bool en)
     else
         val &= ~(params);
     _writeByte(AXP202_ADC_EN2, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 
 
 int AXP20X_Class::enableIRQ(uint32_t params, bool en)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val, val1;
     if (params & 0xFF) {
         val1 = params & 0xFF;
@@ -340,23 +353,47 @@ int AXP20X_Class::enableIRQ(uint32_t params, bool en)
         AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", AXP202_INTEN4, val);
         _writeByte(AXP202_INTEN4, 1, &val);
     }
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::readIRQ()
 {
-    if (!_init)return AXP202_NOT_INIT;
-    for (int i = 0; i < 5; ++i) {
-        _readByte(AXP202_INTSTS1 + i, 1, &_irq[i]);
+    if (!_init)return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP192_CHIP_ID:
+        for (int i = 0; i < 4; ++i) {
+            _readByte(AXP192_INTSTS1 + i, 1, &_irq[i]);
+        }
+        _readByte(AXP192_INTSTS5, 1, &_irq[4]);
+        return AXP_PASS;
+
+    case AXP202_CHIP_ID:
+        for (int i = 0; i < 5; ++i) {
+            _readByte(AXP202_INTSTS1 + i, 1, &_irq[i]);
+        }
+        return AXP_PASS;
+    default:
+        return AXP_FAIL;
     }
-    return AXP202_PASS;
 }
 
 void AXP20X_Class::clearIRQ()
 {
     uint8_t val = 0xFF;
-    for (int i = 0; i < 5; i++) {
-        _writeByte(AXP202_INTSTS1 + i, 1, &val);
+    switch (_chip_id) {
+    case AXP192_CHIP_ID:
+        for (int i = 0; i < 3; i++) {
+            _writeByte(AXP192_INTSTS1 + i, 1, &val);
+        }
+        _writeByte(AXP192_INTSTS5, 1, &val);
+        break;
+    case AXP202_CHIP_ID:
+        for (int i = 0; i < 5; i++) {
+            _writeByte(AXP202_INTSTS1 + i, 1, &val);
+        }
+        break;
+    default:
+        break;
     }
     memset(_irq, 0, sizeof(_irq));
 }
@@ -442,7 +479,7 @@ bool AXP20X_Class::isPEKLongtPressIRQ()
 
 bool AXP20X_Class::isVBUSPlug()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val;
     _readByte(AXP202_STATUS, 1, &val);
     return (bool)(_irq[2] & BIT_MASK(5));
@@ -450,7 +487,7 @@ bool AXP20X_Class::isVBUSPlug()
 
 int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     if (mv < 700) {
         AXP_DEBUG("DCDC2:Below settable voltage:700mV~2275mV");
         mv = 700;
@@ -461,12 +498,12 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
     }
     uint8_t val = (mv - 0.7) / 0.025;
     _writeByte(AXP202_DC2OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setDCDC3Voltage(uint16_t mv)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     if (mv < 700) {
         AXP_DEBUG("DCDC3:Below settable voltage:700mV~3500mV");
         mv = 700;
@@ -477,13 +514,13 @@ int AXP20X_Class::setDCDC3Voltage(uint16_t mv)
     }
     uint8_t val = (mv - 0.7) / 0.025;
     _writeByte(AXP202_DC3OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 
 int AXP20X_Class::setLDO2Voltage(uint16_t mv)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     if (mv < 1800) {
         AXP_DEBUG("LDO2:Below settable voltage:1800mV~3300mV");
         mv = 1800;
@@ -494,7 +531,7 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
     }
     uint8_t val = (mv - 1.8) / 0.1;
     _writeByte(AXP202_LDO24OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 //!29H LDO3 Output Voltage Setting
@@ -506,7 +543,7 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
 // Vout=[0.7+(Bit6-0)*0.025]V
 int AXP20X_Class::setLDO3Voltage(uint16_t mv)
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     if (mv < 700) {
         AXP_DEBUG("LDO3:Below settable voltage:700mV~2275mV");
         mv = 700;
@@ -518,19 +555,19 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
     uint8_t val = (mv - 0.7) / 0.025;
     val |= BIT_MASK(7);
     _writeByte(AXP202_LDO3OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setLDO4Voltage(axp_ldo4_table_t param)
 {
-    if (!_init)return AXP202_NOT_INIT;
-    if (param >= AXP202_LDO4_MAX)return AXP202_INVALID;
+    if (!_init)return AXP_NOT_INIT;
+    if (param >= AXP202_LDO4_MAX)return AXP_INVALID;
     uint8_t val;
     _readByte(AXP202_LDO24OUT_VOL, 1, &val);
     val &= 0xF0;
     val |= param;
     _writeByte(AXP202_LDO24OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 // 0 : LDO  1 : DCIN
@@ -544,15 +581,15 @@ int AXP20X_Class::setLDO3Mode(uint8_t mode)
         val &= (~BIT_MASK(7));
     }
     _writeByte(AXP202_LDO3OUT_VOL, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 
 }
 
 int AXP20X_Class::setStartupTime(uint8_t param)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
-    if (param > sizeof(startupParams) / sizeof(startupParams[0]))return AXP202_INVALID;
+    if (!_init)return AXP_NOT_INIT;
+    if (param > sizeof(startupParams) / sizeof(startupParams[0]))return AXP_INVALID;
     _readByte(AXP202_POK_SET, 1, &val);
     val &= (~0b11000000);
     val |= startupParams[param];
@@ -562,8 +599,8 @@ int AXP20X_Class::setStartupTime(uint8_t param)
 int AXP20X_Class::setlongPressTime(uint8_t param)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
-    if (param > sizeof(longPressParams) / sizeof(longPressParams[0]))return AXP202_INVALID;
+    if (!_init)return AXP_NOT_INIT;
+    if (param > sizeof(longPressParams) / sizeof(longPressParams[0]))return AXP_INVALID;
     _readByte(AXP202_POK_SET, 1, &val);
     val &= (~0b00110000);
     val |= longPressParams[param];
@@ -573,8 +610,8 @@ int AXP20X_Class::setlongPressTime(uint8_t param)
 int AXP20X_Class::setShutdownTime(uint8_t param)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
-    if (param > sizeof(shutdownParams) / sizeof(shutdownParams[0]))return AXP202_INVALID;
+    if (!_init)return AXP_NOT_INIT;
+    if (param > sizeof(shutdownParams) / sizeof(shutdownParams[0]))return AXP_INVALID;
     _readByte(AXP202_POK_SET, 1, &val);
     val &= (~0b00000011);
     val |= shutdownParams[param];
@@ -584,7 +621,7 @@ int AXP20X_Class::setShutdownTime(uint8_t param)
 int AXP20X_Class::setTimeOutShutdown(bool en)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_POK_SET, 1, &val);
     if (en)
         val |= (1 << 3);
@@ -597,7 +634,7 @@ int AXP20X_Class::setTimeOutShutdown(bool en)
 float AXP20X_Class::getSettingChargeCurrent()
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_CHARGE1, 1, &val);
     val &= 0b00000111;
     float cur = 300.0 + val * 100.0;
@@ -623,28 +660,28 @@ bool AXP20X_Class::isChargeingEnable()
 int AXP20X_Class::enableChargeing(bool en)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_CHARGE1, 1, &val);
     val |= (1 << 7);
     _writeByte(AXP202_CHARGE1, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setChargingTargetVoltage(axp_chargeing_vol_t param)
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
-    if (param > sizeof(targetVolParams) / sizeof(targetVolParams[0]))return AXP202_INVALID;
+    if (!_init)return AXP_NOT_INIT;
+    if (param > sizeof(targetVolParams) / sizeof(targetVolParams[0]))return AXP_INVALID;
     _readByte(AXP202_CHARGE1, 1, &val);
     val &= ~(0b01100000);
     val |= targetVolParams[param];
     _writeByte(AXP202_CHARGE1, 1, &val);
-    return AXP202_PASS;
+    return AXP_PASS;
 }
 
 int AXP20X_Class::getBattPercentage()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val;
     _readByte(AXP202_BATT_PERCENTAGE, 1, &val);
     if (!(val & BIT_MASK(7))) {
@@ -678,7 +715,7 @@ int AXP20X_Class::debugCharging()
 
 int AXP20X_Class::debugStatus()
 {
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     uint8_t val, val1, val2;
     _readByte(AXP202_STATUS, 1, &val);
     _readByte(AXP202_MODE_CHGSTATUS, 1, &val1);

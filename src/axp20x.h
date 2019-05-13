@@ -32,19 +32,26 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-
+// #define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...)                 AXP_DEBUG_PORT.printf_P( (PGM_P)PSTR(fmt), ## __VA_ARGS__ )
 #else
 #define AXP_DEBUG(...)
 #endif
 
-#define AXP202_SLAVE_ADDRESS    (0x35)  //7-bit I2C Address
+//! Error Code
+#define AXP_PASS                      0
+#define AXP_FAIL                     -1
+#define AXP_INVALID                  -2
+#define AXP_NOT_INIT                 -3
 
-#define AXP202_PASS                     0
-#define AXP202_FAIL                     -1
-#define AXP202_INVALID                  -2
-#define AXP202_NOT_INIT                 -3
+//! Chip Address
+#define AXP202_SLAVE_ADDRESS            (0x35)
+#define AXP192_SLAVE_ADDRESS            (0x34)
+
+//! Chip ID
+#define AXP202_CHIP_ID  0x41
+#define AXP192_CHIP_ID  0x03
 
 //! REG MAP
 #define AXP202_STATUS                  (0x00)
@@ -109,6 +116,19 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_INTSTS3                 (0x4A)
 #define AXP202_INTSTS4                 (0x4B)
 #define AXP202_INTSTS5                 (0x4C)
+
+//Irq control register 
+#define AXP192_INTEN1                  (0x40)
+#define AXP192_INTEN2                  (0x41)
+#define AXP192_INTEN3                  (0x42)
+#define AXP192_INTEN4                  (0x43)
+#define AXP192_INTEN5                  (0x4A)
+//Irq status register 
+#define AXP192_INTSTS1                 (0x44)
+#define AXP192_INTSTS2                 (0x45)
+#define AXP192_INTSTS3                 (0x46)
+#define AXP192_INTSTS4                 (0x47)
+#define AXP192_INTSTS5                 (0x4D)
 
 /* axp 20 adc data register */
 #define AXP202_BAT_AVERVOL_H8          (0x78)
@@ -222,6 +242,9 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_GPIO0_STEP               (0.5F)
 #define AXP202_GPIO1_STEP               (0.5F)
 
+
+
+
 #define FORCED_OPEN_DCDC3(x)            (x |= AXP202_DCDC3)
 #define BIT_MASK(x)                     (1 << x)
 #define IS_OPEN(reg,channel)            (bool)(reg & BIT_MASK(channel))
@@ -239,6 +262,18 @@ enum {
     AXP202_LDO3  = 6,
     AXP202_OUTPUT_MAX,
 };
+
+
+enum {
+    AXP192_DCDC1 = 0,
+    AXP192_DCDC3 = 1,
+    AXP192_LDO2  = 2,
+    AXP192_LDO3  = 3,
+    AXP192_DCDC2 = 4,
+    AXP192_EXTEN  = 6,
+    AXP192_OUTPUT_MAX,
+};
+
 
 enum {
     AXP202_STARTUP_TIME,
@@ -356,6 +391,7 @@ public:
     // Power Output Control
     int setPowerOutPut(uint8_t ch, bool en);
 
+    bool isBatteryConnect();
     bool isChargeing();
     bool isLDO2Enable();
     bool isLDO3Enable();
@@ -432,7 +468,16 @@ public:
 
     int debugCharging();
     int debugStatus();
+
 private:
+
+    uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl4)
+    {
+        uint8_t hv, lv;
+        _readByte(regh8, 1, &hv);
+        _readByte(regl4, 1, &lv);
+        return (hv << 5) | (lv & 0x1F);
+    }
 
     uint16_t _getRegistResult(uint8_t regh8, uint8_t regl4)
     {
@@ -472,5 +517,6 @@ private:
     uint8_t _address;
     bool _init = false;
     TwoWire *_i2cPort;
-    uint8_t _irq[4];
+    uint8_t _irq[5];
+    uint8_t _chip_id;
 };
