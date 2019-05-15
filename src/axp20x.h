@@ -117,13 +117,13 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_INTSTS4                 (0x4B)
 #define AXP202_INTSTS5                 (0x4C)
 
-//Irq control register 
+//Irq control register
 #define AXP192_INTEN1                  (0x40)
 #define AXP192_INTEN2                  (0x41)
 #define AXP192_INTEN3                  (0x42)
 #define AXP192_INTEN4                  (0x43)
 #define AXP192_INTEN5                  (0x4A)
-//Irq status register 
+//Irq status register
 #define AXP192_INTSTS1                 (0x44)
 #define AXP192_INTSTS2                 (0x45)
 #define AXP192_INTSTS3                 (0x46)
@@ -383,6 +383,13 @@ typedef enum {
     AXP202_LDO4_MAX,
 } axp_ldo4_table_t;
 
+typedef enum {
+    LED_OFF,
+    LED_BLINK_1HZ,
+    LED_BLINK_4HZ,
+    LED_LOW_LEVEL,
+}axp_chgled_mode_t;
+
 class AXP20X_Class
 {
 public:
@@ -460,6 +467,8 @@ public:
     int setLDO2Voltage(uint16_t mv);
     int setLDO3Voltage(uint16_t mv);
     int setLDO4Voltage(axp_ldo4_table_t param);
+
+    int setChgLEDMode(uint8_t mode);
 
     // 0 : LDO  1 : DCIN
     int setLDO3Mode(uint8_t mode);

@@ -115,7 +115,7 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
         data &= (~(1 << ch));
     }
 
-    FORCED_OPEN_DCDC3(data);    //! Must be forced open in T-Watch
+    // FORCED_OPEN_DCDC3(data);    //! Must be forced open in T-Watch
 
     _writeByte(AXP202_LDO234_DC23_CTL, 1, &data);
     delay(1);
@@ -690,6 +690,38 @@ int AXP20X_Class::getBattPercentage()
     return 0;
 }
 
+
+
+int AXP20X_Class::setChgLEDMode(uint8_t mode)
+{
+    uint8_t val;
+    _readByte(AXP202_OFF_CTL, 1, &val);
+    val |= BIT_MASK(3);
+    switch (mode) {
+    case LED_OFF:
+        val &= 0b11001111;
+        _writeByte(AXP202_OFF_CTL, 1, &val);
+        break;
+    case LED_BLINK_1HZ:
+        val &= 0b11001111;
+        val |= 0b00010000;
+        _writeByte(AXP202_OFF_CTL, 1, &val);
+        break;
+    case LED_BLINK_4HZ:
+        val &= 0b11001111;
+        val |= 0b00100000;
+        _writeByte(AXP202_OFF_CTL, 1, &val);
+        break;
+    case LED_LOW_LEVEL:
+        val &= 0b11001111;
+        val |= 0b00110000;
+        _writeByte(AXP202_OFF_CTL, 1, &val);
+        break;
+    default:
+        break;
+    }
+    return AXP_PASS;
+}
 
 int AXP20X_Class::debugCharging()
 {
