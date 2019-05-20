@@ -388,7 +388,7 @@ typedef enum {
     LED_BLINK_1HZ,
     LED_BLINK_4HZ,
     LED_LOW_LEVEL,
-}axp_chgled_mode_t;
+} axp_chgled_mode_t;
 
 class AXP20X_Class
 {
@@ -407,6 +407,11 @@ public:
     bool isDCDC2Enable();
     bool isChargeingEnable();
     bool isVBUSPlug();
+
+    //Only axp192 chip
+    bool isDCDC1Enable();
+    //Only axp192 chip
+    bool isExtenEnable();
 
     //IRQ Status
     bool isAcinOverVoltageIRQ();

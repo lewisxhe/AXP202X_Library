@@ -77,6 +77,18 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr)
     return _init ? AXP_PASS : AXP_FAIL;
 }
 
+//Only axp192 chip
+bool AXP20X_Class::isDCDC1Enable()
+{
+    return IS_OPEN(_outputReg, AXP192_DCDC1);
+}
+//Only axp192 chip
+bool AXP20X_Class::isExtenEnable()
+{
+    return IS_OPEN(_outputReg, AXP192_EXTEN);
+}
+
+
 bool AXP20X_Class::isLDO2Enable()
 {
     return IS_OPEN(_outputReg, AXP202_LDO2);
