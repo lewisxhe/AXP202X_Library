@@ -130,6 +130,9 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP192_INTSTS4                 (0x47)
 #define AXP192_INTSTS5                 (0x4D)
 
+
+#define AXP192_DC1_VLOTAGE              (0x26)
+
 /* axp 20 adc data register */
 #define AXP202_BAT_AVERVOL_H8          (0x78)
 #define AXP202_BAT_AVERVOL_L4          (0x79)
@@ -467,6 +470,9 @@ public:
     int readIRQ();
     void clearIRQ();
 
+    // AXP192 Only
+    int setDCDC1Voltage(uint16_t mv);
+    // -----------------
     int setDCDC2Voltage(uint16_t mv);
     int setDCDC3Voltage(uint16_t mv);
     int setLDO2Voltage(uint16_t mv);

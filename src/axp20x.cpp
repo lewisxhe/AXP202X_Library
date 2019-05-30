@@ -768,3 +768,19 @@ int AXP20X_Class::debugStatus()
     AXP_DEBUG("0x%x\t\t\t 0x%x\t\t\t 0x%x\n", val, val1, val2);
 }
 
+
+int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
+{
+    if (!_init)return AXP_NOT_INIT;
+    if (mv < 700) {
+        AXP_DEBUG("DCDC1:Below settable voltage:700mV~3500mV");
+        mv = 700;
+    }
+    if (mv > 3500) {
+        AXP_DEBUG("DCDC1:Above settable voltage:700mV~3500mV");
+        mv = 3500;
+    }
+    uint8_t val = (mv - 0.7) / 0.025;
+    _writeByte(AXP192_DC1_VLOTAGE, 1, &val);
+    return AXP_PASS;
+}
