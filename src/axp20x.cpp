@@ -127,7 +127,7 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
         data &= (~(1 << ch));
     }
 
-    // FORCED_OPEN_DCDC3(data);    //! Must be forced open in T-Watch
+    FORCED_OPEN_DCDC3(data);    //! Must be forced open in T-Watch
 
     _writeByte(AXP202_LDO234_DC23_CTL, 1, &data);
     delay(1);
@@ -508,7 +508,7 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
         AXP_DEBUG("DCDC2:Above settable voltage:700mV~2275mV");
         mv = 2275;
     }
-    uint8_t val = (mv - 0.7) / 0.025;
+    uint8_t val = (mv - 700) / 25;
     _writeByte(AXP202_DC2OUT_VOL, 1, &val);
     return AXP_PASS;
 }
@@ -524,7 +524,7 @@ int AXP20X_Class::setDCDC3Voltage(uint16_t mv)
         AXP_DEBUG("DCDC3:Above settable voltage:700mV~3500mV");
         mv = 3500;
     }
-    uint8_t val = (mv - 0.7) / 0.025;
+    uint8_t val = (mv - 700) / 25;
     _writeByte(AXP202_DC3OUT_VOL, 1, &val);
     return AXP_PASS;
 }
@@ -541,7 +541,7 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
         AXP_DEBUG("LDO2:Above settable voltage:1800mV~3300mV");
         mv = 3300;
     }
-    uint8_t val = (mv - 1.8) / 0.1;
+    uint8_t val = (mv - 1800) / 100;
     _writeByte(AXP202_LDO24OUT_VOL, 1, &val);
     return AXP_PASS;
 }
@@ -564,7 +564,7 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
         AXP_DEBUG("LDO3:Above settable voltage:700mV~2275mV");
         mv = 2275;
     }
-    uint8_t val = (mv - 0.7) / 0.025;
+    uint8_t val = (mv - 700) / 25;
     val |= BIT_MASK(7);
     _writeByte(AXP202_LDO3OUT_VOL, 1, &val);
     return AXP_PASS;
@@ -768,7 +768,7 @@ int AXP20X_Class::debugStatus()
     AXP_DEBUG("0x%x\t\t\t 0x%x\t\t\t 0x%x\n", val, val1, val2);
 }
 
-
+// Only AXP129 chip
 int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
 {
     if (!_init)return AXP_NOT_INIT;
@@ -780,7 +780,7 @@ int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
         AXP_DEBUG("DCDC1:Above settable voltage:700mV~3500mV");
         mv = 3500;
     }
-    uint8_t val = (mv - 0.7) / 0.025;
+    uint8_t val = (mv - 700) / 25;
     _writeByte(AXP192_DC1_VLOTAGE, 1, &val);
     return AXP_PASS;
 }
