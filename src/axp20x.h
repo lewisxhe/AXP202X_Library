@@ -431,12 +431,11 @@ typedef enum {
 
 
 typedef enum {
-    AXP202_GPIO0;
-    AXP202_GPIO1;
-    AXP202_GPIO2;
-    AXP202_GPIO3;
+    AXP202_GPIO0,
+    AXP202_GPIO1,
+    AXP202_GPIO2,
+    AXP202_GPIO3,
 } axp202_gpio_t;
-
 
 
 class AXP20X_Class
@@ -661,7 +660,7 @@ private:
         _i2cPort->endTransmission();
     }
 
-    int _setGpioInterrupt(int *val, int mode, bool en);
+    int _setGpioInterrupt(uint8_t *val, int mode, bool en);
     static const uint8_t startupParams[];
     static const uint8_t longPressParams[];
     static const uint8_t shutdownParams[];

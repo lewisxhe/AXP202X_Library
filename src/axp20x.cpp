@@ -804,7 +804,7 @@ int AXP20X_Class::setGPIO0Voltage(uint8_t param)
     uint8_t val = 0;
     _readByte(AXP202_GPIO0_VOL, 1, &val);
     val &= 0b11111000;
-    val |= params[mv];
+    val |= params[param];
     _writeByte(AXP202_GPIO0_VOL, 1, &val);
     return AXP_PASS;
 }
@@ -858,11 +858,6 @@ int AXP20X_Class::readGpio2Level()
     return _gpio[2];
 }
 
-enum {
-    AXP202_GPIO2_OUTPUT_LOW,
-    AXP202_GPIO2_FLOATING,
-    AXP202_GPIO2_INPUT,
-};
 
 int AXP20X_Class::setGpio2Mode(uint8_t mode)
 {
@@ -906,11 +901,11 @@ int AXP20X_Class::setGpio3Level(uint8_t level)
     if (!(val & BIT_MASK(2))) {
         return AXP_FAIL;
     }
-    level = level ? level & (~BIT_MASK(1)) : level |  BIT_MASK(1);
-    _writeByte(AXP202_GPIO3_CTL, 1, );
+    val = level ? val & (~BIT_MASK(1)) : val |  BIT_MASK(1);
+    _writeByte(AXP202_GPIO3_CTL, 1, &val);
 }
 
-int AXP20X_Class::_setGpioInterrupt(int *val, int mode, bool en)
+int AXP20X_Class::_setGpioInterrupt(uint8_t *val, int mode, bool en)
 {
     switch (mode) {
     case RISING:
