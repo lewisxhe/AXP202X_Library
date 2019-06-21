@@ -354,7 +354,7 @@ typedef enum {
     AXP202_BATT_CONNECT_IRQ = 1 << 15,
     //IRQ3
     AXP202_PEK_LONGPRESS_IRQ = 1 << 16,
-    AXP202_PEL_SHORTPRESS_IRQ   =   1 << 17,
+    AXP202_PEK_SHORTPRESS_IRQ = 1 << 17,
     AXP202_LDO3_LOW_VOL_IRQ = 1 << 18,
     AXP202_DC3_LOW_VOL_IRQ = 1 << 19,
     AXP202_DC2_LOW_VOL_IRQ = 1 << 20,
@@ -395,10 +395,10 @@ typedef enum {
 } axp_ldo4_table_t;
 
 typedef enum {
-    LED_OFF,
-    LED_BLINK_1HZ,
-    LED_BLINK_4HZ,
-    LED_LOW_LEVEL,
+    AXP20X_LED_OFF,
+    AXP20X_LED_BLINK_1HZ,
+    AXP20X_LED_BLINK_4HZ,
+    AXP20X_LED_LOW_LEVEL,
 } axp_chgled_mode_t;
 
 
