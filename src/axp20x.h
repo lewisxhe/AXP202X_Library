@@ -511,6 +511,8 @@ public:
     int setShutdownTime(uint8_t param);
     int setTimeOutShutdown(bool en);
 
+    int shutdown();
+
     int enableIRQ(uint32_t params, bool en);
     int readIRQ();
     void clearIRQ();
