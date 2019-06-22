@@ -710,21 +710,21 @@ int AXP20X_Class::setChgLEDMode(uint8_t mode)
     _readByte(AXP202_OFF_CTL, 1, &val);
     val |= BIT_MASK(3);
     switch (mode) {
-    case LED_OFF:
+    case AXP20X_LED_OFF:
         val &= 0b11001111;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
-    case LED_BLINK_1HZ:
+    case AXP20X_LED_BLINK_1HZ:
         val &= 0b11001111;
         val |= 0b00010000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
-    case LED_BLINK_4HZ:
+    case AXP20X_LED_BLINK_4HZ:
         val &= 0b11001111;
         val |= 0b00100000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
-    case LED_LOW_LEVEL:
+    case AXP20X_LED_LOW_LEVEL:
         val &= 0b11001111;
         val |= 0b00110000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
