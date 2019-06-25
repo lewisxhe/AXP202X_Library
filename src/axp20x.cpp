@@ -646,7 +646,7 @@ int AXP20X_Class::setTimeOutShutdown(bool en)
 int AXP20X_Class::shutdown()
 {
     uint8_t val;
-    if (!_init)return AXP202_NOT_INIT;
+    if (!_init)return AXP_NOT_INIT;
     _readByte(AXP202_OFF_CTL, 1, &val);
     val |= (1 << 7);
     _writeByte(AXP202_OFF_CTL, 1, &val);
