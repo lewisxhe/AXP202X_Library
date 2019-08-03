@@ -784,7 +784,12 @@ int AXP20X_Class::limitingOff()
     if (!_init)return AXP_NOT_INIT;
     uint8_t val;
     _readByte(AXP202_IPS_SET, 1, &val);
-    val &= ~(1 << 1);
+    if (_chip_id == AXP202_CHIP_ID) {
+        // val &= ~(1 << 1);
+        val |= 0x03;
+    } else {
+        val &= ~(1 << 1);
+    }
     _writeByte(AXP202_IPS_SET, 1, &val);
     return AXP_PASS;
 }
