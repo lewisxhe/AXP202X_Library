@@ -778,6 +778,17 @@ int AXP20X_Class::debugStatus()
     AXP_DEBUG("0x%x\t\t\t 0x%x\t\t\t 0x%x\n", val, val1, val2);
 }
 
+
+int AXP20X_Class::limitingOff()
+{
+    if (!_init)return AXP_NOT_INIT;
+    uint8_t val;
+    _readByte(AXP202_IPS_SET, 1, &val);
+    val &= ~(1 << 1);
+    _writeByte(AXP202_IPS_SET, 1, &val);
+    return AXP_PASS;
+}
+
 // Only AXP129 chip
 int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
 {

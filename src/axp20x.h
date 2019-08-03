@@ -32,7 +32,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-// #define AXP_DEBUG_PORT  Serial
+#define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...)                 AXP_DEBUG_PORT.printf_P( (PGM_P)PSTR(fmt), ## __VA_ARGS__ )
 #else
@@ -535,10 +535,10 @@ public:
 
     int debugCharging();
     int debugStatus();
-
+    int limitingOff();
     /**
      * @brief  setGPIO0Voltage
-     * @note   
+     * @note
      * @param  mv:  axp_gpio_voltage_t enum
      * @retval
      */
