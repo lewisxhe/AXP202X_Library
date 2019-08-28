@@ -513,6 +513,23 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
     return AXP_PASS;
 }
 
+
+
+uint16_t AXP20X_Class::getDCDC2Voltage()
+{
+    uint8_t val = 0;
+    _readByte(AXP202_DC2OUT_VOL, 1, &val);
+    return val * 25 + 700;
+}
+
+uint16_t AXP20X_Class::getDCDC3Voltage()
+{
+    uint8_t val = 0;
+    _readByte(AXP202_DC3OUT_VOL, 1, &val);
+    return val * 25 + 700;
+}
+
+
 int AXP20X_Class::setDCDC3Voltage(uint16_t mv)
 {
     if (!_init)return AXP_NOT_INIT;
@@ -798,6 +815,7 @@ int AXP20X_Class::limitingOff()
 int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
 {
     if (!_init)return AXP_NOT_INIT;
+    if (_chip_id != AXP192_CHIP_ID) return AXP_FAIL;
     if (mv < 700) {
         AXP_DEBUG("DCDC1:Below settable voltage:700mV~3500mV");
         mv = 700;
@@ -811,6 +829,14 @@ int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
     return AXP_PASS;
 }
 
+// Only AXP129 chip
+uint16_t AXP20X_Class::getDCDC1Voltage()
+{
+    if (_chip_id != AXP192_CHIP_ID) return AXP_FAIL;
+    uint8_t val = 0;
+    _readByte(AXP192_DC1_VLOTAGE, 1, &val);
+    return val * 25 + 700;
+}
 
 
 int AXP20X_Class::setGPIO0Voltage(uint8_t param)

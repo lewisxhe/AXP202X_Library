@@ -32,7 +32,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-#define AXP_DEBUG_PORT  Serial
+// #define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...)                 AXP_DEBUG_PORT.printf_P( (PGM_P)PSTR(fmt), ## __VA_ARGS__ )
 #else
@@ -519,12 +519,22 @@ public:
 
     // AXP192 Only
     int setDCDC1Voltage(uint16_t mv);
+    // return mv
+    uint16_t getDCDC1Voltage();
+
+
     // -----------------
     int setDCDC2Voltage(uint16_t mv);
     int setDCDC3Voltage(uint16_t mv);
     int setLDO2Voltage(uint16_t mv);
     int setLDO3Voltage(uint16_t mv);
     int setLDO4Voltage(axp_ldo4_table_t param);
+
+    // return mv
+    uint16_t getDCDC2Voltage();
+    uint16_t getDCDC3Voltage();
+
+
 
     int setChgLEDMode(uint8_t mode);
 
