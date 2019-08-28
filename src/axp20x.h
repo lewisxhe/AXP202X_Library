@@ -140,6 +140,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 
 
 #define AXP192_DC1_VLOTAGE              (0x26)
+#define AXP192_LDO23OUT_VOL             (0x28)
 
 /* axp 20 adc data register */
 #define AXP202_BAT_AVERVOL_H8          (0x78)
@@ -438,6 +439,14 @@ typedef enum {
 } axp202_gpio_t;
 
 
+typedef enum {
+    AXP_ADC_SAMPLING_RATE_25HZ = 0,
+    AXP_ADC_SAMPLING_RATE_50HZ = 1,
+    AXP_ADC_SAMPLING_RATE_100HZ = 2,
+    AXP_ADC_SAMPLING_RATE_200HZ = 3,
+} axp_adc_sampling_rate_t;
+
+
 class AXP20X_Class
 {
 public:
@@ -496,8 +505,8 @@ public:
     float getBattChargeCurrent();
     float getBattDischargeCurrent();
     float getSysIPSOUTVoltage();
-    float getBattChargeCoulomb();
-    float getBattDischargeCoulomb();
+    uint32_t getBattChargeCoulomb();
+    uint32_t getBattDischargeCoulomb();
     float getSettingChargeCurrent();
 
     int setChargingTargetVoltage(axp_chargeing_vol_t param);
@@ -531,6 +540,8 @@ public:
     int setLDO4Voltage(axp_ldo4_table_t param);
 
     // return mv
+    uint16_t getLDO2Voltage();
+
     uint16_t getDCDC2Voltage();
     uint16_t getDCDC3Voltage();
 
@@ -546,6 +557,11 @@ public:
     int debugCharging();
     int debugStatus();
     int limitingOff();
+
+    int setAdcSamplingRate(axp_adc_sampling_rate_t rate);
+    uint8_t getAdcSamplingRate();
+    float getCoulombData();
+
     /**
      * @brief  setGPIO0Voltage
      * @note
@@ -653,6 +669,7 @@ private:
 
     int _readByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
+        if (nbytes == 0 || !data) return -1;
         _i2cPort->beginTransmission(_address);
         _i2cPort->write(reg);
         _i2cPort->endTransmission();
@@ -660,16 +677,19 @@ private:
         uint8_t index = 0;
         while (_i2cPort->available())
             data[index++] = _i2cPort->read();
+        return 0;
     }
 
     int _writeByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
+        if (nbytes == 0 || !data) return -1;
         _i2cPort->beginTransmission(_address);
         _i2cPort->write(reg);
         for (uint8_t i = 0; i < nbytes; i++) {
             _i2cPort->write(data[i]);
         }
         _i2cPort->endTransmission();
+        return 0;
     }
 
     int _setGpioInterrupt(uint8_t *val, int mode, bool en);
