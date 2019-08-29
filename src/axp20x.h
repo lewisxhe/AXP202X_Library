@@ -32,7 +32,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-#define AXP_DEBUG_PORT  Serial
+// #define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...)                 AXP_DEBUG_PORT.printf_P( (PGM_P)PSTR(fmt), ## __VA_ARGS__ )
 #else
@@ -142,6 +142,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP192_DC1_VLOTAGE              (0x26)
 #define AXP192_LDO23OUT_VOL             (0x28)
 #define AXP192_GPIO0_CTL                (0x90)
+#define AXP192_GPIO0_VOL                (0x91)
 
 
 /* axp 20 adc data register */
@@ -635,10 +636,9 @@ public:
     float getCoulombData();
 
 
-
     int gpio0Setting(axp192_gpio0_mode_t mode);     //! Only axp192
-
-
+    int gpio0SetVoltage(axp192_gpio_voltage_t vol);
+    uint16_t gpio0GetVoltage();
 
     //! The following features have not been tested
     /**

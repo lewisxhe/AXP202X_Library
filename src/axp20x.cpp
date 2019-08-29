@@ -1130,3 +1130,31 @@ int AXP20X_Class::gpio0Setting(axp192_gpio0_mode_t mode)
     }
     return AXP_FAIL;
 }
+
+
+int AXP20X_Class::gpio0SetVoltage(axp192_gpio_voltage_t vol)
+{
+    uint8_t rVal;
+    if (!_init)return AXP_NOT_INIT;
+    if (_chip_id == AXP192_CHIP_ID) {
+        _readByte(AXP192_GPIO0_VOL, 1, &rVal);
+        rVal &= 0x0F;
+        rVal |= (vol << 4);
+        _writeByte(AXP192_GPIO0_VOL, 1, &rVal);
+        return AXP_PASS;
+    }
+    return AXP_FAIL;
+}
+
+uint16_t AXP20X_Class::gpio0GetVoltage()
+{
+    uint8_t rVal;
+    if (!_init)return AXP_NOT_INIT;
+    if (_chip_id == AXP192_CHIP_ID) {
+        _readByte(AXP192_GPIO0_VOL, 1, &rVal);
+        rVal &= 0xF0;
+        rVal >>= 4;
+        return rVal;
+    }
+    return 0;
+}
