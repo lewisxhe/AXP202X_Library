@@ -611,14 +611,13 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
     if (_chip_id == AXP202_CHIP_ID ) {
         _readByte(AXP202_LDO24OUT_VOL, 1, &rVal);
         rVal &= 0x0F;
-        rVal |= wVal;
+        rVal |= (wVal << 4);
         _writeByte(AXP202_LDO24OUT_VOL, 1, &rVal);
         return AXP_PASS;
     } else if (_chip_id == AXP192_CHIP_ID) {
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
-        AXP_DEBUG("wr result:%x\n", rVal);
         rVal &= 0x0F;
-        rVal |= wVal;
+        rVal |= (wVal << 4);
         _writeByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         return AXP_PASS;
     }
@@ -638,39 +637,79 @@ uint16_t AXP20X_Class::getLDO2Voltage()
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         AXP_DEBUG("get result:%x\n", rVal);
         rVal &= 0xF0;
-        rVal >>= 3;
+        rVal >>= 4;
         return rVal * 100 + 1800;
     }
     return 0;
 }
 
-//!29H LDO3 Output Voltage Setting
-// LDO3 Mode select：
-// Bit 7    0：LDO mode，voltage can be set by [6:0]
-//          1：enable/disable control mode，and voltage is determined by LDO3IN
-// 6-0      LDO3 output voltage setting Bit6-Bit0
-// 0.7-2.275V，25mV/step
-// Vout=[0.7+(Bit6-0)*0.025]V
 int AXP20X_Class::setLDO3Voltage(uint16_t mv)
 {
+    uint8_t rVal;
     if (!_init)return AXP_NOT_INIT;
-    if (mv < 700) {
+    if (_chip_id == AXP202_CHIP_ID && mv < 700) {
         AXP_DEBUG("LDO3:Below settable voltage:700mV~2275mV");
         mv = 700;
+    } else if (_chip_id == AXP192_CHIP_ID && mv < 1800) {
+        AXP_DEBUG("LDO3:Below settable voltage:1800mV~3300mV");
+        mv = 1800;
     }
-    if (mv > 2275) {
+
+    if (_chip_id == AXP202_CHIP_ID && mv > 2275) {
         AXP_DEBUG("LDO3:Above settable voltage:700mV~2275mV");
         mv = 2275;
+    } else if (_chip_id == AXP192_CHIP_ID && mv > 3300) {
+        AXP_DEBUG("LDO3:Above settable voltage:1800mV~3300mV");
+        mv = 3300;
     }
-    uint8_t val = (mv - 700) / 25;
-    // val |= BIT_MASK(7);
-    _writeByte(AXP202_LDO3OUT_VOL, 1, &val);
-    return AXP_PASS;
+
+    if (_chip_id == AXP202_CHIP_ID ) {
+
+        _readByte(AXP202_LDO3OUT_VOL, 1, &rVal);
+        rVal &= 0x80;
+        rVal |= ((mv - 700) / 25);
+        _writeByte(AXP202_LDO3OUT_VOL, 1, &rVal);
+        return AXP_PASS;
+
+    } else if (_chip_id == AXP192_CHIP_ID) {
+
+        _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
+        rVal &= 0xF0;
+        rVal |= ((mv - 1800) / 100);
+        _writeByte(AXP192_LDO23OUT_VOL, 1, &rVal);
+        return AXP_PASS;
+    }
+    return AXP_FAIL;
 }
 
+
+uint16_t AXP20X_Class::getLDO3Voltage()
+{
+    uint8_t rVal;
+    if (!_init)return AXP_NOT_INIT;
+
+    if (_chip_id == AXP202_CHIP_ID ) {
+
+        _readByte(AXP202_LDO3OUT_VOL, 1, &rVal);
+        if (rVal & 0x80) {
+            //! According to the hardware N_VBUSEN Pin selection
+            return getVbusVoltage() * 1000;
+        } else {
+            return (rVal & 0x7F) * 25 + 700;
+        }
+    } else if (_chip_id == AXP192_CHIP_ID) {
+        _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
+        rVal &= 0x0F;
+        return rVal * 100 + 1800;
+    }
+    return 0;
+}
+
+//! Only axp202 support
 int AXP20X_Class::setLDO4Voltage(axp_ldo4_table_t param)
 {
     if (!_init)return AXP_NOT_INIT;
+    if (_chip_id != AXP202_CHIP_ID ) return AXP_FAIL;
     if (param >= AXP202_LDO4_MAX)return AXP_INVALID;
     uint8_t val;
     _readByte(AXP202_LDO24OUT_VOL, 1, &val);
@@ -680,10 +719,12 @@ int AXP20X_Class::setLDO4Voltage(axp_ldo4_table_t param)
     return AXP_PASS;
 }
 
+//! Only AXP202 support
 // 0 : LDO  1 : DCIN
 int AXP20X_Class::setLDO3Mode(uint8_t mode)
 {
     uint8_t val;
+    if (_chip_id != AXP202_CHIP_ID ) return AXP_FAIL;
     _readByte(AXP202_LDO3OUT_VOL, 1, &val);
     if (mode) {
         val |= BIT_MASK(7);
@@ -883,7 +924,6 @@ int AXP20X_Class::limitingOff()
     uint8_t val;
     _readByte(AXP202_IPS_SET, 1, &val);
     if (_chip_id == AXP202_CHIP_ID) {
-        // val &= ~(1 << 1);
         val |= 0x03;
     } else {
         val &= ~(1 << 1);
@@ -1074,4 +1114,19 @@ int AXP20X_Class::setGpioInterruptMode(uint8_t gpio, int mode, bool en)
         _setGpioInterrupt(&val, mode, en);
         break;
     }
+}
+
+
+int AXP20X_Class::gpio0Setting(axp192_gpio0_mode_t mode)
+{
+    uint8_t rVal;
+    if (!_init)return AXP_NOT_INIT;
+    if (_chip_id == AXP192_CHIP_ID ) {
+        _readByte(AXP192_GPIO0_CTL, 1, &rVal);
+        rVal &= 0xF8;
+        rVal |= mode;
+        _writeByte(AXP192_GPIO0_CTL, 1, &rVal);
+        return AXP_PASS;
+    }
+    return AXP_FAIL;
 }

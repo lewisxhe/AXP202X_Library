@@ -32,7 +32,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-// #define AXP_DEBUG_PORT  Serial
+#define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...)                 AXP_DEBUG_PORT.printf_P( (PGM_P)PSTR(fmt), ## __VA_ARGS__ )
 #else
@@ -141,6 +141,8 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 
 #define AXP192_DC1_VLOTAGE              (0x26)
 #define AXP192_LDO23OUT_VOL             (0x28)
+#define AXP192_GPIO0_CTL                (0x90)
+
 
 /* axp 20 adc data register */
 #define AXP202_BAT_AVERVOL_H8          (0x78)
@@ -287,20 +289,37 @@ enum {
 };
 
 
-enum {
-    AXP202_STARTUP_TIME,
-    AXP202_LONGPRESS_TIME,
-    AXP202_SHUTDOWN_EXCEEDS_TIME,
-    AXP202_PWROK_SIGNAL_DELAY,
-    AXP202_SHUTDOWN_TIME,
-};
-
-enum {
+typedef enum {
     AXP202_STARTUP_TIME_128MS,
     AXP202_STARTUP_TIME_3S,
     AXP202_STARTUP_TIME_1S,
     AXP202_STARTUP_TIME_2S,
-};
+} axp202_startup_time_t;
+
+
+typedef enum {
+    AXP192_STARTUP_TIME_128MS,
+    AXP192_STARTUP_TIME_512MS,
+    AXP192_STARTUP_TIME_1S,
+    AXP192_STARTUP_TIME_2S,
+} axp192_startup_time_t;
+
+
+
+typedef enum {
+    AXP_LONGPRESS_TIME_1S,
+    AXP_LONGPRESS_TIME_1S5,
+    AXP_LONGPRESS_TIME_2S,
+    AXP_LONGPRESS_TIME_2S5,
+} axp_loonPress_time_t;
+
+
+typedef enum {
+    AXP_POWER_OFF_TIME_4S,
+    AXP_POWER_OFF_TIME_65,
+    AXP_POWER_OFF_TIME_8S,
+    AXP_POWER_OFF_TIME_16S,
+} axp_poweroff_time_t;
 
 //REG 33H: Charging control 1 Charging target-voltage setting
 typedef enum {
@@ -329,10 +348,10 @@ typedef enum {
     AXP202_GPIO0_FUNC_ADC2   = 1 << 2
 } axp_adc2_func_t;
 
-enum {
+typedef enum {
     AXP202_LDO3_MODE_LDO,
     AXP202_LDO3_MODE_DCIN
-};
+} axp202_ldo3_mode_t;
 
 
 typedef enum {
@@ -412,7 +431,7 @@ typedef enum {
     AXP202_GPIO_3V3,
     AXP202_GPIO_3V4,
     AXP202_GPIO_3V5,
-} axp_gpio_voltage_t;
+} axp202_gpio_voltage_t;
 
 typedef enum {
     AXP202_GPIO2_OUTPUT_LOW,
@@ -445,6 +464,36 @@ typedef enum {
     AXP_ADC_SAMPLING_RATE_100HZ = 2,
     AXP_ADC_SAMPLING_RATE_200HZ = 3,
 } axp_adc_sampling_rate_t;
+
+
+typedef enum {
+    AXP192_GPIO0_NMOD_OUTPUT = 0,
+    AXP192_GPIO0_INPUT = 1,
+    AXP192_GPIO0_LDO_OUTPUT = 2,
+    AXP192_GPIO0_ADC_INPUT = 4,
+    AXP192_GPIO0_OUTPUT_LOW = 5,
+    AXP192_GPIO0_FLOATING = 7
+} axp192_gpio0_mode_t;
+
+
+typedef enum {
+    AXP192_GPIO_1V8,
+    AXP192_GPIO_1V9,
+    AXP192_GPIO_2V0,
+    AXP192_GPIO_2V1,
+    AXP192_GPIO_2V2,
+    AXP192_GPIO_2V3,
+    AXP192_GPIO_2V4,
+    AXP192_GPIO_2V5,
+    AXP192_GPIO_2V6,
+    AXP192_GPIO_2V7,
+    AXP192_GPIO_2V8,
+    AXP192_GPIO_2V9,
+    AXP192_GPIO_3V0,
+    AXP192_GPIO_3V1,
+    AXP192_GPIO_3V2,
+    AXP192_GPIO_3V3,
+} axp192_gpio_voltage_t;
 
 
 class AXP20X_Class
@@ -515,21 +564,37 @@ public:
     int adc1Enable(uint16_t params, bool en);
     int adc2Enable(uint16_t params, bool en);
 
+    /**
+     * param:   axp202_startup_time_t or axp192_startup_time_t
+     */
     int setStartupTime(uint8_t param);
+
+    /**
+     * param: axp_loonPress_time_t
+     */
     int setlongPressTime(uint8_t param);
+
+    /**
+     * @param  param: axp_poweroff_time_t
+     */
     int setShutdownTime(uint8_t param);
+
+
     int setTimeOutShutdown(bool en);
 
     int shutdown();
 
+    /**
+     * params: axp_irq_t
+     */
     int enableIRQ(uint32_t params, bool en);
     int readIRQ();
     void clearIRQ();
 
-    // AXP192 Only
-    int setDCDC1Voltage(uint16_t mv);
+
+    int setDCDC1Voltage(uint16_t mv);       //! Only AXP192 support
     // return mv
-    uint16_t getDCDC1Voltage();
+    uint16_t getDCDC1Voltage();             //! Only AXP192 support
 
 
     // -----------------
@@ -537,20 +602,27 @@ public:
     int setDCDC3Voltage(uint16_t mv);
     int setLDO2Voltage(uint16_t mv);
     int setLDO3Voltage(uint16_t mv);
-    int setLDO4Voltage(axp_ldo4_table_t param);
+
+
+    int setLDO4Voltage(axp_ldo4_table_t param);      //! Only axp202 support
 
     // return mv
     uint16_t getLDO2Voltage();
-
+    uint16_t getLDO3Voltage();
     uint16_t getDCDC2Voltage();
     uint16_t getDCDC3Voltage();
 
 
-
+    /**
+     * @param  mode: axp_chgled_mode_t
+     */
     int setChgLEDMode(uint8_t mode);
 
-    // 0 : LDO  1 : DCIN
-    int setLDO3Mode(uint8_t mode);
+
+    /**
+     * @param  mode: axp202_ldo3_mode_t
+     */
+    int setLDO3Mode(uint8_t mode);      //! Only AXP202 support
 
     int getBattPercentage();
 
@@ -562,10 +634,17 @@ public:
     uint8_t getAdcSamplingRate();
     float getCoulombData();
 
+
+
+    int gpio0Setting(axp192_gpio0_mode_t mode);     //! Only axp192
+
+
+
+    //! The following features have not been tested
     /**
      * @brief  setGPIO0Voltage
      * @note
-     * @param  mv:  axp_gpio_voltage_t enum
+     * @param  mv:  axp202_gpio_voltage_t enum
      * @retval
      */
     int setGPIO0Voltage(uint8_t mv);
@@ -593,33 +672,12 @@ public:
      */
     int readGpioStatus();
 
-    /**
-     * @brief   readGpio0Level
-     * @note
-     * @retval
-     */
     int readGpio0Level();
 
-    /**
-     * @brief   readGpio1Level
-     * @note
-     * @retval
-     */
     int readGpio1Level();
 
-    /**
-     * @brief   readGpio2Level
-     * @note
-     * @retval
-     */
     int readGpio2Level();
 
-    /**
-     * @brief  setGpio2Mode
-     * @note
-     * @param  mode:  axp202_gpio2_mode_t enum
-     * @retval
-     */
     int setGpio2Mode(uint8_t mode);
 
     /**
