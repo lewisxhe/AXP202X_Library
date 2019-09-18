@@ -177,8 +177,6 @@ float AXP20X_Class::getAcinVoltage()
 float AXP20X_Class::getAcinCurrent()
 {
     if (!_init)return AXP_NOT_INIT;
-    float rslt;
-    uint8_t hv, lv;
     return _getRegistResult(AXP202_ACIN_CUR_H8, AXP202_ACIN_CUR_L4) * AXP202_ACIN_CUR_STEP;
 }
 
@@ -255,7 +253,7 @@ float AXP20X_Class::getBattChargeCurrent()
     case AXP192_CHIP_ID:
         return _getRegistH8L5(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L4) * AXP202_BATT_CHARGE_CUR_STEP;
     default:
-        break;
+        return AXP_FAIL;
     }
 }
 
@@ -292,7 +290,7 @@ uint32_t AXP20X_Class::getBattChargeCoulomb()
     uint8_t buffer[4];
     if (!_init)return AXP_NOT_INIT;
     _readByte(0xB1, 4, buffer);
-    return buffer[0] << 24 + buffer[1] << 16 + buffer[2] << 8 + buffer[3];
+    return (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3];
 }
 
 uint32_t AXP20X_Class::getBattDischargeCoulomb()
@@ -300,7 +298,7 @@ uint32_t AXP20X_Class::getBattDischargeCoulomb()
     uint8_t buffer[4];
     if (!_init)return AXP_NOT_INIT;
     _readByte(0xB4, 4, buffer);
-    return buffer[0] << 24 + buffer[1] << 16 + buffer[2] << 8 + buffer[3];
+    return (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3];
 }
 
 float AXP20X_Class::getCoulombData()
@@ -745,6 +743,7 @@ int AXP20X_Class::setStartupTime(uint8_t param)
     val &= (~0b11000000);
     val |= startupParams[param];
     _writeByte(AXP202_POK_SET, 1, &val);
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setlongPressTime(uint8_t param)
@@ -756,6 +755,7 @@ int AXP20X_Class::setlongPressTime(uint8_t param)
     val &= (~0b00110000);
     val |= longPressParams[param];
     _writeByte(AXP202_POK_SET, 1, &val);
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setShutdownTime(uint8_t param)
@@ -767,6 +767,7 @@ int AXP20X_Class::setShutdownTime(uint8_t param)
     val &= (~0b00000011);
     val |= shutdownParams[param];
     _writeByte(AXP202_POK_SET, 1, &val);
+    return AXP_PASS;
 }
 
 int AXP20X_Class::setTimeOutShutdown(bool en)
@@ -779,6 +780,7 @@ int AXP20X_Class::setTimeOutShutdown(bool en)
     else
         val &= (~(1 << 3));
     _writeByte(AXP202_POK_SET, 1, &val);
+    return AXP_PASS;
 }
 
 
@@ -789,6 +791,7 @@ int AXP20X_Class::shutdown()
     _readByte(AXP202_OFF_CTL, 1, &val);
     val |= (1 << 7);
     _writeByte(AXP202_OFF_CTL, 1, &val);
+    return AXP_PASS;
 }
 
 
@@ -903,6 +906,7 @@ int AXP20X_Class::debugCharging()
     val &= 0b00000111;
     float cur = 300.0 + val * 100.0;
     AXP_DEBUG("Charge current : %.2f mA\n", cur);
+    return AXP_PASS;
 }
 
 
@@ -915,6 +919,7 @@ int AXP20X_Class::debugStatus()
     _readByte(AXP202_IPS_SET, 1, &val2);
     AXP_DEBUG("AXP202_STATUS:   AXP202_MODE_CHGSTATUS   AXP202_IPS_SET\n");
     AXP_DEBUG("0x%x\t\t\t 0x%x\t\t\t 0x%x\n", val, val1, val2);
+    return AXP_PASS;
 }
 
 
@@ -1076,6 +1081,7 @@ int AXP20X_Class::setGpio3Level(uint8_t level)
     }
     val = level ? val & (~BIT_MASK(1)) : val |  BIT_MASK(1);
     _writeByte(AXP202_GPIO3_CTL, 1, &val);
+    return AXP_PASS;
 }
 
 int AXP20X_Class::_setGpioInterrupt(uint8_t *val, int mode, bool en)
@@ -1083,12 +1089,12 @@ int AXP20X_Class::_setGpioInterrupt(uint8_t *val, int mode, bool en)
     switch (mode) {
     case RISING:
         *val = en ? *val | BIT_MASK(7) : *val & (~BIT_MASK(7));
-        break;
+        return AXP_PASS;
     case FALLING:
         *val = en ? *val | BIT_MASK(6) : *val & (~BIT_MASK(6));
-        break;
+        return AXP_PASS;
     default:
-        break;
+        return AXP_FAIL;
     }
 }
 
@@ -1100,19 +1106,21 @@ int AXP20X_Class::setGpioInterruptMode(uint8_t gpio, int mode, bool en)
     case AXP202_GPIO0:
         _readByte(AXP202_GPIO0_CTL, 1, &val);
         _setGpioInterrupt(&val, mode, en);
-        break;
+        return AXP_PASS;
     case AXP202_GPIO1:
         _readByte(AXP202_GPIO1_CTL, 1, &val);
         _setGpioInterrupt(&val, mode, en);
-        break;
+        return AXP_PASS;
     case AXP202_GPIO2:
         _readByte(AXP202_GPIO2_CTL, 1, &val);
         _setGpioInterrupt(&val, mode, en);
-        break;
+        return AXP_PASS;
     case AXP202_GPIO3:
         _readByte(AXP202_GPIO3_CTL, 1, &val);
         _setGpioInterrupt(&val, mode, en);
-        break;
+        return AXP_PASS;
+    default:
+        return AXP_FAIL;
     }
 }
 
