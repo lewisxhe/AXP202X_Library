@@ -904,7 +904,7 @@ int AXP20X_Class::debugCharging()
         AXP_DEBUG(" end when the charge current is lower than 10%% of the set value\n");
     }
     val &= 0b00000111;
-    float cur = 300.0 + val * 100.0;
+    float const cur = 300.0 + val * 100.0;
     AXP_DEBUG("Charge current : %.2f mA\n", cur);
     return AXP_PASS;
 }
