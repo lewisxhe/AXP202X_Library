@@ -195,7 +195,11 @@ float AXP20X_Class::getVbusCurrent()
 float AXP20X_Class::getTemp()
 {
     if (!_init)return AXP_NOT_INIT;
-    return _getRegistResultAXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4) / 1000;
+    uint8_t hv, lv;
+    _readByte(AXP202_INTERNAL_TEMP_H8, 1, &hv);
+    _readByte(AXP202_INTERNAL_TEMP_L4, 1, &lv);
+    float rslt =  hv << 8 | (lv & 0xF);
+    return rslt / 1000;
 }
 
 float AXP20X_Class::getTSTemp()
@@ -255,14 +259,24 @@ float AXP20X_Class::getBattChargeCurrent()
 
 float AXP20X_Class::getBattDischargeCurrent()
 {
+    float rslt;
+    uint8_t hv, lv;
     if (!_init)return AXP_NOT_INIT;
-    return _getRegistH8L5(AXP202_BAT_AVERDISCHGCUR_H8, AXP202_BAT_AVERDISCHGCUR_L5) * AXP202_BATT_DISCHARGE_CUR_STEP;
+    _readByte(AXP202_BAT_AVERDISCHGCUR_H8, 1, &hv);
+    _readByte(AXP202_BAT_AVERDISCHGCUR_L5, 1, &lv);
+    rslt = (hv << 5) | (lv & 0x1F);
+    return rslt * AXP202_BATT_DISCHARGE_CUR_STEP;
 }
 
 float AXP20X_Class::getSysIPSOUTVoltage()
 {
+    float rslt;
+    uint8_t hv, lv;
     if (!_init)return AXP_NOT_INIT;
-    return _getRegistResult(AXP202_APS_AVERVOL_H8, AXP202_APS_AVERVOL_L4);
+    _readByte(AXP202_APS_AVERVOL_H8, 1, &hv);
+    _readByte(AXP202_APS_AVERVOL_L4, 1, &lv);
+    rslt = (hv << 4) | (lv & 0xF);
+    return rslt;
 }
 
 /*
