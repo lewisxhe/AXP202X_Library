@@ -150,8 +150,6 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_BAT_AVERVOL_L4          (0x79)
 #define AXP202_BAT_AVERCHGCUR_H8       (0x7A)
 #define AXP202_BAT_AVERCHGCUR_L4       (0x7B)
-#define AXP202_BAT_VOL_H8              (0x50)
-#define AXP202_BAT_VOL_L4              (0x51)
 #define AXP202_ACIN_VOL_H8             (0x56)
 #define AXP202_ACIN_VOL_L4             (0x57)
 #define AXP202_ACIN_CUR_H8             (0x58)
