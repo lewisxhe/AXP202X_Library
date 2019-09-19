@@ -538,9 +538,9 @@ bool AXP20X_Class::isPEKLongtPressIRQ()
 bool AXP20X_Class::isVBUSPlug()
 {
     if (!_init)return AXP_NOT_INIT;
-    uint8_t val;
-    _readByte(AXP202_STATUS, 1, &val);
-    return (bool)(_irq[2] & BIT_MASK(5));
+    uint8_t reg;
+    _readByte(AXP202_STATUS, 1, &reg);
+    return IS_OPEN(reg, 5);
 }
 
 int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
