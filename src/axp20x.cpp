@@ -195,7 +195,7 @@ float AXP20X_Class::getVbusCurrent()
 float AXP20X_Class::getTemp()
 {
     if (!_init)return AXP_NOT_INIT;
-    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4) / 1000;
+    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4);
 }
 
 float AXP20X_Class::getTSTemp()
