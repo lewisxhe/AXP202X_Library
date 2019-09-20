@@ -194,7 +194,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_VREF_TEM_CTRL (0xF3)
 #define AXP202_BATT_PERCENTAGE (0xB9)
 
-/* bit definitions for AXP events ,irq event */
+/* bit definitions for AXP events, irq event */
 /*  AXP202  */
 #define AXP202_IRQ_USBLO (1)
 #define AXP202_IRQ_USBRE (2)
@@ -468,6 +468,28 @@ typedef enum
 
 typedef enum
 {
+    AXP_TS_PIN_CURRENT_20UA = 0,
+    AXP_TS_PIN_CURRENT_40UA = 1,
+    AXP_TS_PIN_CURRENT_60UA = 2,
+    AXP_TS_PIN_CURRENT_80UA = 3,
+} axp_ts_pin_current_t;
+
+typedef enum
+{
+    AXP_TS_PIN_FUNCTION_BATT = 0,
+    AXP_TS_PIN_FUNCTION_ADC = 1,
+} axp_ts_pin_function_t;
+
+typedef enum
+{
+    AXP_TS_PIN_MODE_DISABLE = 0,
+    AXP_TS_PIN_MODE_CHARGING = 1,
+    AXP_TS_PIN_MODE_SAMPLING = 2,
+    AXP_TS_PIN_MODE_ENABLE = 3,
+} axp_ts_pin_mode_t;
+
+typedef enum
+{
     AXP192_GPIO0_NMOD_OUTPUT = 0,
     AXP192_GPIO0_INPUT = 1,
     AXP192_GPIO0_LDO_OUTPUT = 2,
@@ -563,6 +585,10 @@ public:
 
     int adc1Enable(uint16_t params, bool en);
     int adc2Enable(uint16_t params, bool en);
+
+    int setTScurrent(axp_ts_pin_current_t current);
+    int setTSfunction(axp_ts_pin_function_t func);
+    int setTSmode(axp_ts_pin_mode_t mode);
 
     /**
      * param:   axp202_startup_time_t or axp192_startup_time_t

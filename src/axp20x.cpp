@@ -342,6 +342,54 @@ int AXP20X_Class::setAdcSamplingRate(axp_adc_sampling_rate_t rate)
     return AXP_PASS;
 }
 
+int AXP20X_Class::setTSfunction(axp_ts_pin_function_t func)
+{
+    //axp192 same axp202 aregister address 0x84
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (func > AXP_TS_PIN_FUNCTION_ADC)
+        return AXP_FAIL;
+    uint8_t val;
+    _readByte(AXP202_ADC_SPEED, 1, &val);
+    uint8_t rw = func;
+    val &= 0xFA;
+    val |= (rw << 2);
+    _writeByte(AXP202_ADC_SPEED, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setTScurrent(axp_ts_pin_current_t current)
+{
+    //axp192 same axp202 aregister address 0x84
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (current > AXP_TS_PIN_CURRENT_80UA)
+        return AXP_FAIL;
+    uint8_t val;
+    _readByte(AXP202_ADC_SPEED, 1, &val);
+    uint8_t rw = current;
+    val &= 0xCF;
+    val |= (rw << 4);
+    _writeByte(AXP202_ADC_SPEED, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setTSmode(axp_ts_pin_mode_t mode)
+{
+    //axp192 same axp202 aregister address 0x84
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (current > AXP_TS_PIN_MODE_ENABLE)
+        return AXP_FAIL;
+    uint8_t val;
+    _readByte(AXP202_ADC_SPEED, 1, &val);
+    uint8_t rw = mode;
+    val &= 0xFC;
+    val |= rw;
+    _writeByte(AXP202_ADC_SPEED, 1, &val);
+    return AXP_PASS;
+}
+
 int AXP20X_Class::adc1Enable(uint16_t params, bool en)
 {
     if (!_init)
