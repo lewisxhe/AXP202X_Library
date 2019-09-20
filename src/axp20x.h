@@ -251,6 +251,9 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_TS_PIN_OUT_STEP (0.8F)
 #define AXP202_GPIO0_STEP (0.5F)
 #define AXP202_GPIO1_STEP (0.5F)
+// AXP192 only
+#define AXP202_GPIO2_STEP (0.5F)
+#define AXP202_GPIO3_STEP (0.5F)
 
 #define FORCED_OPEN_DCDC3(x) (x |= AXP202_DCDC3)
 #define BIT_MASK(x) (1 << x)
@@ -725,11 +728,11 @@ public:
     int setGpioInterruptMode(uint8_t gpio, int mode, bool en);
 
 private:
-    uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl4)
+    uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl5)
     {
         uint8_t hv, lv;
         _readByte(regh8, 1, &hv);
-        _readByte(regl4, 1, &lv);
+        _readByte(regl5, 1, &lv);
         return (hv << 5) | (lv & 0x1F);
     }
 

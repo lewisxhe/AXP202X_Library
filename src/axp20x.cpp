@@ -262,7 +262,7 @@ float AXP20X_Class::getBattChargeCurrent()
     case AXP202_CHIP_ID:
         return _getRegistResult(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L4) * AXP202_BATT_CHARGE_CUR_STEP;
     case AXP192_CHIP_ID:
-        return _getRegistH8L5(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L5) * AXP202_BATT_CHARGE_CUR_STEP;
+        return _getRegistH8L5(AXP202_BAT_AVERCHGCUR_H8, AXP202_BAT_AVERCHGCUR_L5) * AXP202_BATT_CHARGE_CUR_STEP2;
     default:
         return AXP_FAIL;
     }
@@ -968,34 +968,31 @@ int AXP20X_Class::getBattPercentage()
     return 0;
 }
 
-int AXP20X_Class::setChgLEDMode(uint8_t mode)
+int AXP20X_Class::setChgLEDMode(axp_chgled_mode_t mode)
 {
     uint8_t val;
     _readByte(AXP202_OFF_CTL, 1, &val);
+    val &= 0b11001111;
     val |= BIT_MASK(3);
     switch (mode)
     {
     case AXP20X_LED_OFF:
-        val &= 0b11001111;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
     case AXP20X_LED_BLINK_1HZ:
-        val &= 0b11001111;
         val |= 0b00010000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
     case AXP20X_LED_BLINK_4HZ:
-        val &= 0b11001111;
         val |= 0b00100000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
     case AXP20X_LED_LOW_LEVEL:
-        val &= 0b11001111;
         val |= 0b00110000;
         _writeByte(AXP202_OFF_CTL, 1, &val);
         break;
     default:
-        break;
+        return AXP_FAIL;
     }
     return AXP_PASS;
 }
