@@ -640,7 +640,7 @@ public:
     /**
      * @param  mode: axp_chgled_mode_t
      */
-    int setChgLEDMode(uint8_t mode);
+    int setChgLEDMode(axp_chgled_mode_t mode);
 
     /**
      * @param  mode: axp202_ldo3_mode_t
