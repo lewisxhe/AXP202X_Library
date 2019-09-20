@@ -379,7 +379,7 @@ int AXP20X_Class::setTSmode(axp_ts_pin_mode_t mode)
     //axp192 same axp202 aregister address 0x84
     if (!_init)
         return AXP_NOT_INIT;
-    if (current > AXP_TS_PIN_MODE_ENABLE)
+    if (mode > AXP_TS_PIN_MODE_ENABLE)
         return AXP_FAIL;
     uint8_t val;
     _readByte(AXP202_ADC_SPEED, 1, &val);
