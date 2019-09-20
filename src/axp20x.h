@@ -747,7 +747,7 @@ private:
 
     static const uint8_t startupParams[], longPressParams[], shutdownParams[], targetVolParams[];
     static uint8_t _outputReg;
-    uint8_t _address, _irq[5], chip_id, _gpio[4];
+    uint8_t _address, _irq[5], _chip_id, _gpio[4];
     bool _init = false;
 
     TwoWire *_i2cPort;
