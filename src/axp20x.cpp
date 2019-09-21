@@ -387,6 +387,13 @@ int AXP20X_Class::setTSmode(axp_ts_pin_mode_t mode)
     val &= 0xFC;
     val |= rw;
     _writeByte(AXP202_ADC_SPEED, 1, &val);
+
+    // TS pin ADC function enable/disable
+    if (mode == AXP_TS_PIN_MODE_DISABLE)
+        adc1Enable(AXP202_TS_PIN_ADC1, false);
+    else
+        adc1Enable(AXP202_TS_PIN_ADC1, true);
+    )
     return AXP_PASS;
 }
 
