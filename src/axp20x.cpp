@@ -393,7 +393,6 @@ int AXP20X_Class::setTSmode(axp_ts_pin_mode_t mode)
         adc1Enable(AXP202_TS_PIN_ADC1, false);
     else
         adc1Enable(AXP202_TS_PIN_ADC1, true);
-    )
     return AXP_PASS;
 }
 
