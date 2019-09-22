@@ -255,7 +255,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_GPIO2_STEP (0.5F)
 #define AXP202_GPIO3_STEP (0.5F)
 
-#define FORCED_OPEN_DCDC3(x) (x |= AXP202_DCDC3)
+#define FORCED_OPEN_DCDC3(x) (x |= (1 << AXP202_DCDC3))
 #define BIT_MASK(x) (1 << x)
 #define IS_OPEN(reg, channel) (bool)(reg & BIT_MASK(channel))
 
