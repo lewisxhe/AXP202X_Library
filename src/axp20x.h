@@ -61,6 +61,10 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_CHIP_ID 0x41
 #define AXP192_CHIP_ID 0x03
 
+//! Logic states
+#define AXP202_ON 1
+#define AXP202_OFF 0
+
 //! REG MAP
 #define AXP202_STATUS (0x00)
 #define AXP202_MODE_CHGSTATUS (0x01)
@@ -255,12 +259,9 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_GPIO2_STEP (0.5F)
 #define AXP202_GPIO3_STEP (0.5F)
 
-#define FORCED_OPEN_DCDC3(x) (x |= (1 << AXP202_DCDC3))
+#define FORCED_OPEN_DCDC3(x) (x |= (AXP202_ON << AXP202_DCDC3))
 #define BIT_MASK(x) (1 << x)
 #define IS_OPEN(reg, channel) (bool)(reg & BIT_MASK(channel))
-
-#define AXP202_ON 1
-#define AXP202_OFF 0
 
 enum
 {
