@@ -628,7 +628,7 @@ public:
     int setDCDC2Voltage(uint16_t mv);
     int setDCDC3Voltage(uint16_t mv);
     int setLDO2Voltage(uint16_t mv);
-    int setLDO3Voltage(uint16_t mv);
+    int setLDO3Voltage(uint16_t mv);    
 
     int setLDO4Voltage(axp_ldo4_table_t param); //! Only axp202 support
 

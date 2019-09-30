@@ -731,7 +731,7 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
         return AXP_NOT_INIT;
     if (_chip_id == AXP202_CHIP_ID && mv < 700)
     {
-        AXP_DEBUG("LDO3:Below settable voltage:700mV~2275mV");
+        AXP_DEBUG("LDO3:Below settable voltage:700mV~3500mV");
         mv = 700;
     }
     else if (_chip_id == AXP192_CHIP_ID && mv < 1800)
@@ -740,10 +740,10 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
         mv = 1800;
     }
 
-    if (_chip_id == AXP202_CHIP_ID && mv > 2275)
+    if (_chip_id == AXP202_CHIP_ID && mv > 3500)
     {
-        AXP_DEBUG("LDO3:Above settable voltage:700mV~2275mV");
-        mv = 2275;
+        AXP_DEBUG("LDO3:Above settable voltage:700mV~3500mV");
+        mv = 3500;
     }
     else if (_chip_id == AXP192_CHIP_ID && mv > 3300)
     {
@@ -753,16 +753,14 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
 
     if (_chip_id == AXP202_CHIP_ID)
     {
-
         _readByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         rVal &= 0x80;
-        rVal |= ((mv - 700) / 25);
+        rVal = ((mv - 700) / 25);
         _writeByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         return AXP_PASS;
     }
     else if (_chip_id == AXP192_CHIP_ID)
     {
-
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         rVal &= 0xF0;
         rVal |= ((mv - 1800) / 100);
