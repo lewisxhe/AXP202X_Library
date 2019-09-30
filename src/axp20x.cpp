@@ -74,6 +74,24 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr)
     return _init ? AXP_PASS : AXP_FAIL;
 }
 
+int AXP20X_Class::begin(axp_com_fptr_t read_cb,axp_com_fptr_t write_cb,uint8_t addr)
+{
+    if(read_cb == nullptr || write_cb == nullptr)return AXP_FAIL;
+    _read_cb = read_cb;
+    _write_cb = write_cb;
+    _address = addr;
+    _readByte(AXP202_IC_TYPE, 1, &_chip_id);
+    AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID)
+    {
+        AXP_DEBUG("Detect CHIP :%s\n", _chip_id == AXP202_CHIP_ID ? "AXP202" : "AXP192");
+        _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
+        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
+        _init = true;
+    }
+    return _init ? AXP_PASS : AXP_FAIL;
+}
+
 //Only axp192 chip
 bool AXP20X_Class::isDCDC1Enable()
 {

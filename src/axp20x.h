@@ -522,11 +522,17 @@ typedef enum
     AXP192_GPIO_3V3,
 } axp192_gpio_voltage_t;
 
+
+
+typedef uint8_t (*axp_com_fptr_t)(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
+
+
 class AXP20X_Class
 {
 public:
     int begin(TwoWire &port = Wire, uint8_t addr = AXP202_SLAVE_ADDRESS);
-
+    int begin(axp_com_fptr_t read_cb,axp_com_fptr_t write_cb,uint8_t addr = AXP202_SLAVE_ADDRESS);
+    
     // Power Output Control
     int setPowerOutPut(uint8_t ch, bool en);
 
@@ -747,6 +753,9 @@ private:
 
     int _readByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
+        if(_read_cb != nullptr){
+            return _read_cb(_address,reg,data,nbytes);
+        }
         if (nbytes == 0 || !data)
             return -1;
         _i2cPort->beginTransmission(_address);
@@ -761,6 +770,9 @@ private:
 
     int _writeByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
+        if(_write_cb != nullptr){
+            return _write_cb(_address,reg,data,nbytes);
+        }
         if (nbytes == 0 || !data)
             return -1;
         _i2cPort->beginTransmission(_address);
@@ -779,6 +791,7 @@ private:
     static uint8_t _outputReg;
     uint8_t _address, _irq[5], _chip_id, _gpio[4];
     bool _init = false;
-
+    axp_com_fptr_t _read_cb = nullptr;
+    axp_com_fptr_t _write_cb = nullptr;
     TwoWire *_i2cPort;
 };
