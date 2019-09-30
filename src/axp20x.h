@@ -539,11 +539,11 @@ public:
     bool isDCDC2Enable();
     bool isChargeingEnable();
     bool isVBUSPlug();
+    bool isExtenEnable();
 
     //Only axp192 chip
     bool isDCDC1Enable();
-    //Only axp192 chip
-    bool isExtenEnable();
+    
 
     //IRQ Status
     bool isAcinOverVoltageIRQ();

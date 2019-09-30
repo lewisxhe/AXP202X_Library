@@ -81,11 +81,13 @@ bool AXP20X_Class::isDCDC1Enable()
         return IS_OPEN(_outputReg, AXP192_DCDC1);
     return false;
 }
-//Only axp192 chip
+
 bool AXP20X_Class::isExtenEnable()
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_EXTEN);
+    else if(_chip_id == AXP202_CHIP_ID)
+        return IS_OPEN(_outputReg, AXP202_EXTEN);
     return false;
 }
 
