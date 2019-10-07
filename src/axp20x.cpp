@@ -71,7 +71,7 @@ int AXP20X_Class::_axp_probe()
         if (data < 0 || data == 0xFF) {
             return AXP_FAIL;
         }
-        _chip_id = AXP173_CHID_ID;
+        _chip_id = AXP173_CHIP_ID;
         _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
         AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
         _init = true;
@@ -113,7 +113,7 @@ bool AXP20X_Class::isDCDC1Enable()
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_DCDC1);
-    else if (_chip_id == AXP173_CHID_ID)
+    else if (_chip_id == AXP173_CHIP_ID)
         return IS_OPEN(_outputReg, AXP173_DCDC1);
     return false;
 }
@@ -124,7 +124,7 @@ bool AXP20X_Class::isExtenEnable()
         return IS_OPEN(_outputReg, AXP192_EXTEN);
     else if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_EXTEN);
-    else if (_chip_id == AXP173_CHID_ID) {
+    else if (_chip_id == AXP173_CHIP_ID) {
         uint8_t data;
         _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
         return IS_OPEN(data, AXP173_CTL_EXTEN_BIT);
@@ -134,7 +134,7 @@ bool AXP20X_Class::isExtenEnable()
 
 bool AXP20X_Class::isLDO2Enable()
 {
-    if (_chip_id == AXP173_CHID_ID) {
+    if (_chip_id == AXP173_CHIP_ID) {
         return IS_OPEN(_outputReg, AXP173_LDO2);
     }
     //axp192 same axp202 ldo2 bit
@@ -147,7 +147,7 @@ bool AXP20X_Class::isLDO3Enable()
         return IS_OPEN(_outputReg, AXP192_LDO3);
     else if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_LDO3);
-    else if (_chip_id == AXP173_CHID_ID)
+    else if (_chip_id == AXP173_CHIP_ID)
         return IS_OPEN(_outputReg, AXP173_LDO3);
     return false;
 }
@@ -156,14 +156,14 @@ bool AXP20X_Class::isLDO4Enable()
 {
     if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_LDO4);
-    if (_chip_id == AXP173_CHID_ID)
+    if (_chip_id == AXP173_CHIP_ID)
         return IS_OPEN(_outputReg, AXP173_LDO4);
     return false;
 }
 
 bool AXP20X_Class::isDCDC2Enable()
 {
-    if (_chip_id == AXP173_CHID_ID) {
+    if (_chip_id == AXP173_CHIP_ID) {
         uint8_t data;
         _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
         return IS_OPEN(data, AXP173_CTL_DC2_BIT);
@@ -174,7 +174,7 @@ bool AXP20X_Class::isDCDC2Enable()
 
 bool AXP20X_Class::isDCDC3Enable()
 {
-    if (_chip_id == AXP173_CHID_ID)
+    if (_chip_id == AXP173_CHIP_ID)
         return false;
     //axp192 same axp202 dc3 bit
     return IS_OPEN(_outputReg, AXP202_DCDC3);
@@ -189,7 +189,7 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
 
     //! Axp173 cannot use the REG12H register to control
     //! DC2 and EXTEN. It is necessary to control REG10H separately.
-    if (_chip_id == AXP173_CHID_ID) {
+    if (_chip_id == AXP173_CHIP_ID) {
         _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
         if (ch & AXP173_DCDC2) {
             data = en ? data | BIT_MASK(AXP173_CTL_DC2_BIT) : data & (~BIT_MASK(AXP173_CTL_DC2_BIT));
@@ -701,6 +701,8 @@ uint16_t AXP20X_Class::getDCDC2Voltage()
 
 uint16_t AXP20X_Class::getDCDC3Voltage()
 {
+    if (!_init)
+        return 0;
     uint8_t val = 0;
     _readByte(AXP202_DC3OUT_VOL, 1, &val);
     return val * 25 + 700;
@@ -743,7 +745,7 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
         rVal |= (wVal << 4);
         _writeByte(AXP202_LDO24OUT_VOL, 1, &rVal);
         return AXP_PASS;
-    } else if (_chip_id == AXP192_CHIP_ID) {
+    } else if (_chip_id == AXP192_CHIP_ID || _chip_id == AXP173_CHIP_ID) {
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         rVal &= 0x0F;
         rVal |= (wVal << 4);
@@ -761,7 +763,7 @@ uint16_t AXP20X_Class::getLDO2Voltage()
         rVal &= 0xF0;
         rVal >>= 4;
         return rVal * 100 + 1800;
-    } else if (_chip_id == AXP192_CHIP_ID) {
+    } else if (_chip_id == AXP192_CHIP_ID || _chip_id == AXP173_CHIP_ID ) {
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         AXP_DEBUG("get result:%x\n", rVal);
         rVal &= 0xF0;
@@ -798,7 +800,7 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
         rVal |= ((mv - 700) / 25);
         _writeByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         return AXP_PASS;
-    } else if (_chip_id == AXP192_CHIP_ID) {
+    } else if (_chip_id == AXP192_CHIP_ID || _chip_id == AXP173_CHIP_ID) {
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         rVal &= 0xF0;
         rVal |= ((mv - 1800) / 100);
@@ -815,7 +817,6 @@ uint16_t AXP20X_Class::getLDO3Voltage()
         return AXP_NOT_INIT;
 
     if (_chip_id == AXP202_CHIP_ID) {
-
         _readByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         if (rVal & 0x80) {
             //! According to the hardware N_VBUSEN Pin selection
@@ -823,7 +824,7 @@ uint16_t AXP20X_Class::getLDO3Voltage()
         } else {
             return (rVal & 0x7F) * 25 + 700;
         }
-    } else if (_chip_id == AXP192_CHIP_ID) {
+    } else if (_chip_id == AXP192_CHIP_ID || _chip_id == AXP173_CHIP_ID) {
         _readByte(AXP192_LDO23OUT_VOL, 1, &rVal);
         rVal &= 0x0F;
         return rVal * 100 + 1800;
@@ -831,21 +832,56 @@ uint16_t AXP20X_Class::getLDO3Voltage()
     return 0;
 }
 
+//! Only axp173 support
+int AXP20X_Class::setLDO4Voltage(uint16_t mv)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id != AXP173_CHIP_ID)
+        return AXP_FAIL;
+
+    if (mv < 700) {
+        AXP_DEBUG("LDO4:Below settable voltage:700mV~3500mV");
+        mv = 700;
+    }
+    if (mv > 3500) {
+        AXP_DEBUG("LDO4:Above settable voltage:700mV~3500mV");
+        mv = 3500;
+    }
+    uint8_t val = (mv - 700) / 25;
+    _writeByte(AXP173_LDO4_VLOTAGE, 1, &val);
+    return AXP_PASS;
+}
+
+//! Only axp173 support
+uint16_t AXP20X_Class::getLDO4Voltage()
+{
+    if (!_init)
+        return 0;
+    if (_chip_id != AXP173_CHIP_ID)
+        return 0;
+    uint8_t val = 0;
+    _readByte(AXP173_LDO4_VLOTAGE, 1, &val);
+    return val * 25 + 700;
+}
+
+
 //! Only axp202 support
 int AXP20X_Class::setLDO4Voltage(axp_ldo4_table_t param)
 {
     if (!_init)
         return AXP_NOT_INIT;
-    if (_chip_id != AXP202_CHIP_ID)
-        return AXP_FAIL;
-    if (param >= AXP202_LDO4_MAX)
-        return AXP_INVALID;
-    uint8_t val;
-    _readByte(AXP202_LDO24OUT_VOL, 1, &val);
-    val &= 0xF0;
-    val |= param;
-    _writeByte(AXP202_LDO24OUT_VOL, 1, &val);
-    return AXP_PASS;
+    if (_chip_id == AXP202_CHIP_ID) {
+        if (param >= AXP202_LDO4_MAX)
+            return AXP_INVALID;
+        uint8_t val;
+        _readByte(AXP202_LDO24OUT_VOL, 1, &val);
+        val &= 0xF0;
+        val |= param;
+        _writeByte(AXP202_LDO24OUT_VOL, 1, &val);
+        return AXP_PASS;
+    }
+    return AXP_FAIL;
 }
 
 //! Only AXP202 support
@@ -1076,12 +1112,12 @@ int AXP20X_Class::limitingOff()
     return AXP_PASS;
 }
 
-// Only AXP129 chip
+// Only AXP129 chip and AXP173
 int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
 {
     if (!_init)
         return AXP_NOT_INIT;
-    if (_chip_id != AXP192_CHIP_ID)
+    if (_chip_id != AXP192_CHIP_ID && _chip_id != AXP173_CHIP_ID)
         return AXP_FAIL;
     if (mv < 700) {
         AXP_DEBUG("DCDC1:Below settable voltage:700mV~3500mV");
@@ -1092,16 +1128,18 @@ int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
         mv = 3500;
     }
     uint8_t val = (mv - 700) / 25;
+    //! axp192 and axp173 dc1 control register same
     _writeByte(AXP192_DC1_VLOTAGE, 1, &val);
     return AXP_PASS;
 }
 
-// Only AXP129 chip
+// Only AXP129 chip and AXP173
 uint16_t AXP20X_Class::getDCDC1Voltage()
 {
-    if (_chip_id != AXP192_CHIP_ID)
+    if (_chip_id != AXP192_CHIP_ID && _chip_id != AXP173_CHIP_ID)
         return AXP_FAIL;
     uint8_t val = 0;
+    //! axp192 and axp173 dc1 control register same
     _readByte(AXP192_DC1_VLOTAGE, 1, &val);
     return val * 25 + 700;
 }

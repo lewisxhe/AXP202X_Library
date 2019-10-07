@@ -61,7 +61,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 //! Chip ID
 #define AXP202_CHIP_ID 0x41
 #define AXP192_CHIP_ID 0x03
-#define AXP173_CHID_ID 0xAD     //!Axp173 does not have a chip ID, given a custom ID
+#define AXP173_CHIP_ID 0xAD     //!Axp173 does not have a chip ID, given a custom ID
 
 //! Logic states
 #define AXP202_ON 1
@@ -261,11 +261,12 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_GPIO2_STEP (0.5F)
 #define AXP202_GPIO3_STEP (0.5F)
 
-// AXP173 
+// AXP173
 #define AXP173_EXTEN_DC2_CTL   (0x10)
 #define AXP173_CTL_DC2_BIT      (0)
 #define AXP173_CTL_EXTEN_BIT    (2)
-
+#define AXP173_DC1_VLOTAGE      (0x26)
+#define AXP173_LDO4_VLOTAGE     (0x27)
 
 #define FORCED_OPEN_DCDC3(x) (x |= (AXP202_ON << AXP202_DCDC3))
 #define BIT_MASK(x) (1 << x)
@@ -620,9 +621,9 @@ public:
     int readIRQ();
     void clearIRQ();
 
-    int setDCDC1Voltage(uint16_t mv); //! Only AXP192 support
+    int setDCDC1Voltage(uint16_t mv); //! Only AXP192 support and AXP173
     // return mv
-    uint16_t getDCDC1Voltage(); //! Only AXP192 support
+    uint16_t getDCDC1Voltage(); //! Only AXP192 support and AXP173
 
     // -----------------
     int setDCDC2Voltage(uint16_t mv);
@@ -631,8 +632,11 @@ public:
     int setLDO3Voltage(uint16_t mv);
 
     int setLDO4Voltage(axp_ldo4_table_t param); //! Only axp202 support
+    int setLDO4Voltage(uint16_t mv);            //! Only axp173 support
 
     // return mv
+    uint16_t getLDO4Voltage();                  //! Only axp173 support
+    
     uint16_t getLDO2Voltage();
     uint16_t getLDO3Voltage();
     uint16_t getDCDC2Voltage();
