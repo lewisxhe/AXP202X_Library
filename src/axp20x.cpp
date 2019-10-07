@@ -96,17 +96,6 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
     _isAxp173 = isAxp173;
 
     return _axp_probe();
-    /*
-    _readByte(AXP202_IC_TYPE, 1, &_chip_id);
-    AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
-    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
-        AXP_DEBUG("Detect CHIP :%s\n", _chip_id == AXP202_CHIP_ID ? "AXP202" : "AXP192");
-        _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
-        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
-        _init = true;
-    }
-    */
-    // return _init ? AXP_PASS : AXP_FAIL;
 }
 
 int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr, bool isAxp173)
@@ -117,17 +106,6 @@ int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t
     _address = addr;
     _isAxp173 = isAxp173;
     return _axp_probe();
-    /*
-    _readByte(AXP202_IC_TYPE, 1, &_chip_id);
-    AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
-    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
-        AXP_DEBUG("Detect CHIP :%s\n", _chip_id == AXP202_CHIP_ID ? "AXP202" : "AXP192");
-        _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
-        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
-        _init = true;
-    }
-    */
-    // return _init ? AXP_PASS : AXP_FAIL;
 }
 
 //Only axp192 chip
@@ -135,6 +113,8 @@ bool AXP20X_Class::isDCDC1Enable()
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_DCDC1);
+    else if (_chip_id == AXP173_CHID_ID)
+        return IS_OPEN(_outputReg, AXP173_DCDC1);
     return false;
 }
 
@@ -144,11 +124,19 @@ bool AXP20X_Class::isExtenEnable()
         return IS_OPEN(_outputReg, AXP192_EXTEN);
     else if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_EXTEN);
+    else if (_chip_id == AXP173_CHID_ID) {
+        uint8_t data;
+        _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
+        return IS_OPEN(data, AXP173_CTL_EXTEN_BIT);
+    }
     return false;
 }
 
 bool AXP20X_Class::isLDO2Enable()
 {
+    if (_chip_id == AXP173_CHID_ID) {
+        return IS_OPEN(_outputReg, AXP173_LDO2);
+    }
     //axp192 same axp202 ldo2 bit
     return IS_OPEN(_outputReg, AXP202_LDO2);
 }
@@ -159,6 +147,8 @@ bool AXP20X_Class::isLDO3Enable()
         return IS_OPEN(_outputReg, AXP192_LDO3);
     else if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_LDO3);
+    else if (_chip_id == AXP173_CHID_ID)
+        return IS_OPEN(_outputReg, AXP173_LDO3);
     return false;
 }
 
@@ -166,17 +156,26 @@ bool AXP20X_Class::isLDO4Enable()
 {
     if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_LDO4);
+    if (_chip_id == AXP173_CHID_ID)
+        return IS_OPEN(_outputReg, AXP173_LDO4);
     return false;
 }
 
 bool AXP20X_Class::isDCDC2Enable()
 {
+    if (_chip_id == AXP173_CHID_ID) {
+        uint8_t data;
+        _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
+        return IS_OPEN(data, AXP173_CTL_DC2_BIT);
+    }
     //axp192 same axp202 dc2 bit
     return IS_OPEN(_outputReg, AXP202_DCDC2);
 }
 
 bool AXP20X_Class::isDCDC3Enable()
 {
+    if (_chip_id == AXP173_CHID_ID)
+        return false;
     //axp192 same axp202 dc3 bit
     return IS_OPEN(_outputReg, AXP202_DCDC3);
 }
