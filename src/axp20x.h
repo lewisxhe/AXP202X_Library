@@ -263,8 +263,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define BIT_MASK(x) (1 << x)
 #define IS_OPEN(reg, channel) (bool)(reg & BIT_MASK(channel))
 
-enum
-{
+enum {
     AXP202_EXTEN = 0,
     AXP202_DCDC3 = 1,
     AXP202_LDO2 = 2,
@@ -274,8 +273,7 @@ enum
     AXP202_OUTPUT_MAX,
 };
 
-enum
-{
+enum {
     AXP192_DCDC1 = 0,
     AXP192_DCDC3 = 1,
     AXP192_LDO2 = 2,
@@ -285,32 +283,28 @@ enum
     AXP192_OUTPUT_MAX,
 };
 
-typedef enum
-{
+typedef enum {
     AXP202_STARTUP_TIME_128MS,
     AXP202_STARTUP_TIME_3S,
     AXP202_STARTUP_TIME_1S,
     AXP202_STARTUP_TIME_2S,
 } axp202_startup_time_t;
 
-typedef enum
-{
+typedef enum {
     AXP192_STARTUP_TIME_128MS,
     AXP192_STARTUP_TIME_512MS,
     AXP192_STARTUP_TIME_1S,
     AXP192_STARTUP_TIME_2S,
 } axp192_startup_time_t;
 
-typedef enum
-{
+typedef enum {
     AXP_LONGPRESS_TIME_1S,
     AXP_LONGPRESS_TIME_1S5,
     AXP_LONGPRESS_TIME_2S,
     AXP_LONGPRESS_TIME_2S5,
 } axp_loonPress_time_t;
 
-typedef enum
-{
+typedef enum {
     AXP_POWER_OFF_TIME_4S,
     AXP_POWER_OFF_TIME_65,
     AXP_POWER_OFF_TIME_8S,
@@ -318,8 +312,7 @@ typedef enum
 } axp_poweroff_time_t;
 
 //REG 33H: Charging control 1 Charging target-voltage setting
-typedef enum
-{
+typedef enum {
     AXP202_TARGET_VOL_4_1V,
     AXP202_TARGET_VOL_4_15V,
     AXP202_TARGET_VOL_4_2V,
@@ -327,8 +320,7 @@ typedef enum
 } axp_chargeing_vol_t;
 
 //REG 82H: ADC Enable 1 register Parameter
-typedef enum
-{
+typedef enum {
     AXP202_BATT_VOL_ADC1 = 1 << 7,
     AXP202_BATT_CUR_ADC1 = 1 << 6,
     AXP202_ACIN_VOL_ADC1 = 1 << 5,
@@ -340,21 +332,18 @@ typedef enum
 } axp_adc1_func_t;
 
 // REG 83H: ADC Enable 2 register Parameter
-typedef enum
-{
+typedef enum {
     AXP202_TEMP_MONITORING_ADC2 = 1 << 7,
     AXP202_GPIO1_FUNC_ADC2 = 1 << 3,
     AXP202_GPIO0_FUNC_ADC2 = 1 << 2
 } axp_adc2_func_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_LDO3_MODE_LDO,
     AXP202_LDO3_MODE_DCIN
 } axp202_ldo3_mode_t;
 
-typedef enum
-{
+typedef enum {
     //IRQ1
     AXP202_VBUS_VHOLD_LOW_IRQ = 1 << 1,
     AXP202_VBUS_REMOVED_IRQ = 1 << 2,
@@ -394,8 +383,7 @@ typedef enum
 
 } axp_irq_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_LDO4_1250MV,
     AXP202_LDO4_1300MV,
     AXP202_LDO4_1400MV,
@@ -415,16 +403,14 @@ typedef enum
     AXP202_LDO4_MAX,
 } axp_ldo4_table_t;
 
-typedef enum
-{
+typedef enum {
     AXP20X_LED_OFF,
     AXP20X_LED_BLINK_1HZ,
     AXP20X_LED_BLINK_4HZ,
     AXP20X_LED_LOW_LEVEL,
 } axp_chgled_mode_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_GPIO_1V8,
     AXP202_GPIO_2V5,
     AXP202_GPIO_2V8,
@@ -435,65 +421,56 @@ typedef enum
     AXP202_GPIO_3V5,
 } axp202_gpio_voltage_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_GPIO2_OUTPUT_LOW,
     AXP202_GPIO2_FLOATING,
     AXP202_GPIO3_INPUT,
 } axp202_gpio2_mode_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_GPIO3_DIGITAL_INPUT,
     AXP202_GPIO3_OPEN_DRAIN_OUTPUT,
 } axp202_gpio3_mode_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_GPIO3_OUTPUT_LOW,
     AXP202_GPIO3_FLOATING,
 } axp202_gpio3_output_t;
 
-typedef enum
-{
+typedef enum {
     AXP202_GPIO0,
     AXP202_GPIO1,
     AXP202_GPIO2,
     AXP202_GPIO3,
 } axp202_gpio_t;
 
-typedef enum
-{
+typedef enum {
     AXP_ADC_SAMPLING_RATE_25HZ = 0,
     AXP_ADC_SAMPLING_RATE_50HZ = 1,
     AXP_ADC_SAMPLING_RATE_100HZ = 2,
     AXP_ADC_SAMPLING_RATE_200HZ = 3,
 } axp_adc_sampling_rate_t;
 
-typedef enum
-{
+typedef enum {
     AXP_TS_PIN_CURRENT_20UA = 0,
     AXP_TS_PIN_CURRENT_40UA = 1,
     AXP_TS_PIN_CURRENT_60UA = 2,
     AXP_TS_PIN_CURRENT_80UA = 3,
 } axp_ts_pin_current_t;
 
-typedef enum
-{
+typedef enum {
     AXP_TS_PIN_FUNCTION_BATT = 0,
     AXP_TS_PIN_FUNCTION_ADC = 1,
 } axp_ts_pin_function_t;
 
-typedef enum
-{
+typedef enum {
     AXP_TS_PIN_MODE_DISABLE = 0,
     AXP_TS_PIN_MODE_CHARGING = 1,
     AXP_TS_PIN_MODE_SAMPLING = 2,
     AXP_TS_PIN_MODE_ENABLE = 3,
 } axp_ts_pin_mode_t;
 
-typedef enum
-{
+typedef enum {
     AXP192_GPIO0_NMOD_OUTPUT = 0,
     AXP192_GPIO0_INPUT = 1,
     AXP192_GPIO0_LDO_OUTPUT = 2,
@@ -502,8 +479,7 @@ typedef enum
     AXP192_GPIO0_FLOATING = 7
 } axp192_gpio0_mode_t;
 
-typedef enum
-{
+typedef enum {
     AXP192_GPIO_1V8,
     AXP192_GPIO_1V9,
     AXP192_GPIO_2V0,
@@ -531,8 +507,8 @@ class AXP20X_Class
 {
 public:
     int begin(TwoWire &port = Wire, uint8_t addr = AXP202_SLAVE_ADDRESS);
-    int begin(axp_com_fptr_t read_cb,axp_com_fptr_t write_cb,uint8_t addr = AXP202_SLAVE_ADDRESS);
-    
+    int begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr = AXP202_SLAVE_ADDRESS);
+
     // Power Output Control
     int setPowerOutPut(uint8_t ch, bool en);
 
@@ -549,7 +525,7 @@ public:
 
     //Only axp192 chip
     bool isDCDC1Enable();
-    
+
 
     //IRQ Status
     bool isAcinOverVoltageIRQ();
@@ -634,7 +610,7 @@ public:
     int setDCDC2Voltage(uint16_t mv);
     int setDCDC3Voltage(uint16_t mv);
     int setLDO2Voltage(uint16_t mv);
-    int setLDO3Voltage(uint16_t mv);    
+    int setLDO3Voltage(uint16_t mv);
 
     int setLDO4Voltage(axp_ldo4_table_t param); //! Only axp202 support
 
@@ -753,8 +729,8 @@ private:
 
     int _readByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
-        if(_read_cb != nullptr){
-            return _read_cb(_address,reg,data,nbytes);
+        if (_read_cb != nullptr) {
+            return _read_cb(_address, reg, data, nbytes);
         }
         if (nbytes == 0 || !data)
             return -1;
@@ -770,15 +746,14 @@ private:
 
     int _writeByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     {
-        if(_write_cb != nullptr){
-            return _write_cb(_address,reg,data,nbytes);
+        if (_write_cb != nullptr) {
+            return _write_cb(_address, reg, data, nbytes);
         }
         if (nbytes == 0 || !data)
             return -1;
         _i2cPort->beginTransmission(_address);
         _i2cPort->write(reg);
-        for (uint8_t i = 0; i < nbytes; i++)
-        {
+        for (uint8_t i = 0; i < nbytes; i++) {
             _i2cPort->write(data[i]);
         }
         _i2cPort->endTransmission();
