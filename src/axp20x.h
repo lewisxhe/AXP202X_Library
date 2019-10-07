@@ -32,7 +32,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #include <Arduino.h>
 #include <Wire.h>
 
-#define AXP_DEBUG_PORT  Serial
+// #define AXP_DEBUG_PORT  Serial
 #ifdef AXP_DEBUG_PORT
 #define AXP_DEBUG(fmt, ...) AXP_DEBUG_PORT.printf_P((PGM_P)PSTR(fmt), ##__VA_ARGS__)
 #else
@@ -56,10 +56,12 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 //! Chip Address
 #define AXP202_SLAVE_ADDRESS (0x35)
 #define AXP192_SLAVE_ADDRESS (0x34)
+#define AXP173_SLAVE_ADDRESS (0x34)
 
 //! Chip ID
 #define AXP202_CHIP_ID 0x41
 #define AXP192_CHIP_ID 0x03
+#define AXP173_CHID_ID 0xAD     //!Axp173 does not have a chip ID, given a custom ID
 
 //! Logic states
 #define AXP202_ON 1
@@ -259,6 +261,12 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP202_GPIO2_STEP (0.5F)
 #define AXP202_GPIO3_STEP (0.5F)
 
+// AXP173 
+#define AXP173_EXTEN_DC2_CTL   (0x10)
+#define AXP173_CTL_DC2_BIT      (0)
+#define AXP173_CTL_EXTEN_BIT    (2)
+
+
 #define FORCED_OPEN_DCDC3(x) (x |= (AXP202_ON << AXP202_DCDC3))
 #define BIT_MASK(x) (1 << x)
 #define IS_OPEN(reg, channel) (bool)(reg & BIT_MASK(channel))
@@ -281,6 +289,16 @@ enum {
     AXP192_DCDC2 = 4,
     AXP192_EXTEN = 6,
     AXP192_OUTPUT_MAX,
+};
+
+enum {
+    AXP173_DCDC1 = 0,
+    AXP173_LDO4 = 1,
+    AXP173_LDO2 = 2,
+    AXP173_LDO3 = 3,
+    AXP173_DCDC2 = 4,
+    AXP173_EXTEN = 6,
+    AXP173_OUTPUT_MAX,
 };
 
 typedef enum {
@@ -506,8 +524,8 @@ typedef uint8_t (*axp_com_fptr_t)(uint8_t dev_addr, uint8_t reg_addr, uint8_t *d
 class AXP20X_Class
 {
 public:
-    int begin(TwoWire &port = Wire, uint8_t addr = AXP202_SLAVE_ADDRESS);
-    int begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr = AXP202_SLAVE_ADDRESS);
+    int begin(TwoWire &port = Wire, uint8_t addr = AXP202_SLAVE_ADDRESS, bool isAxp173 = false);
+    int begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr = AXP202_SLAVE_ADDRESS, bool isAxp173 = false);
 
     // Power Output Control
     int setPowerOutPut(uint8_t ch, bool en);
@@ -761,6 +779,7 @@ private:
     }
 
     int _setGpioInterrupt(uint8_t *val, int mode, bool en);
+    int _axp_probe();
 
     static const uint8_t startupParams[], longPressParams[], shutdownParams[], targetVolParams[];
     static uint8_t _outputReg;
@@ -769,4 +788,5 @@ private:
     axp_com_fptr_t _read_cb = nullptr;
     axp_com_fptr_t _write_cb = nullptr;
     TwoWire *_i2cPort;
+    bool _isAxp173;
 };

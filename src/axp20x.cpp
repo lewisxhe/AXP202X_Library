@@ -62,10 +62,41 @@ const uint8_t AXP20X_Class::targetVolParams[] = {
 // Power Output Control register
 uint8_t AXP20X_Class::_outputReg;
 
-int AXP20X_Class::begin(TwoWire &port, uint8_t addr)
+int AXP20X_Class::_axp_probe()
+{
+    uint8_t data;
+    if (_isAxp173) {
+        //!Axp173 does not have a chip ID, read the status register to see if it reads normally
+        _readByte(0x01, 1, &data);
+        if (data < 0 || data == 0xFF) {
+            return AXP_FAIL;
+        }
+        _chip_id = AXP173_CHID_ID;
+        _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
+        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
+        _init = true;
+        return AXP_PASS;
+    }
+    _readByte(AXP202_IC_TYPE, 1, &_chip_id);
+    AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
+        AXP_DEBUG("Detect CHIP :%s\n", _chip_id == AXP202_CHIP_ID ? "AXP202" : "AXP192");
+        _readByte(AXP202_LDO234_DC23_CTL, 1, &_outputReg);
+        AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
+        _init = true;
+        return AXP_PASS;
+    }
+    return AXP_FAIL;
+}
+
+int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
 {
     _i2cPort = &port; //Grab which port the user wants us to use
     _address = addr;
+    _isAxp173 = isAxp173;
+
+    return _axp_probe();
+    /*
     _readByte(AXP202_IC_TYPE, 1, &_chip_id);
     AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
     if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
@@ -74,15 +105,19 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr)
         AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
         _init = true;
     }
-    return _init ? AXP_PASS : AXP_FAIL;
+    */
+    // return _init ? AXP_PASS : AXP_FAIL;
 }
 
-int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr)
+int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr, bool isAxp173)
 {
     if (read_cb == nullptr || write_cb == nullptr)return AXP_FAIL;
     _read_cb = read_cb;
     _write_cb = write_cb;
     _address = addr;
+    _isAxp173 = isAxp173;
+    return _axp_probe();
+    /*
     _readByte(AXP202_IC_TYPE, 1, &_chip_id);
     AXP_DEBUG("chip id detect 0x%x\n", _chip_id);
     if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
@@ -91,7 +126,8 @@ int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t
         AXP_DEBUG("OUTPUT Register 0x%x\n", _outputReg);
         _init = true;
     }
-    return _init ? AXP_PASS : AXP_FAIL;
+    */
+    // return _init ? AXP_PASS : AXP_FAIL;
 }
 
 //Only axp192 chip
@@ -152,6 +188,21 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
     if (!_init)
         return AXP_NOT_INIT;
 
+    //! Axp173 cannot use the REG12H register to control
+    //! DC2 and EXTEN. It is necessary to control REG10H separately.
+    if (_chip_id == AXP173_CHID_ID) {
+        _readByte(AXP173_EXTEN_DC2_CTL, 1, &data);
+        if (ch & AXP173_DCDC2) {
+            data = en ? data | BIT_MASK(AXP173_CTL_DC2_BIT) : data & (~BIT_MASK(AXP173_CTL_DC2_BIT));
+            ch &= (~BIT_MASK(AXP173_DCDC2));
+            _writeByte(AXP173_EXTEN_DC2_CTL, 1, &data);
+        } else if (ch & AXP173_EXTEN) {
+            data = en ? data | BIT_MASK(AXP173_CTL_EXTEN_BIT) : data & (~BIT_MASK(AXP173_CTL_EXTEN_BIT));
+            ch &= (~BIT_MASK(AXP173_EXTEN));
+            _writeByte(AXP173_EXTEN_DC2_CTL, 1, &data);
+        }
+    }
+
     _readByte(AXP202_LDO234_DC23_CTL, 1, &data);
     if (en) {
         data |= (1 << ch);
@@ -159,7 +210,9 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
         data &= (~(1 << ch));
     }
 
-    FORCED_OPEN_DCDC3(data); //! Must be forced open in T-Watch
+    if (_chip_id == AXP202_CHIP_ID) {
+        FORCED_OPEN_DCDC3(data); //! Must be forced open in T-Watch
+    }
 
     _writeByte(AXP202_LDO234_DC23_CTL, 1, &data);
     delay(1);
