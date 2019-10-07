@@ -68,7 +68,7 @@ int AXP20X_Class::_axp_probe()
     if (_isAxp173) {
         //!Axp173 does not have a chip ID, read the status register to see if it reads normally
         _readByte(0x01, 1, &data);
-        if (data < 0 || data == 0xFF) {
+        if (data == 0 || data == 0xFF) {
             return AXP_FAIL;
         }
         _chip_id = AXP173_CHIP_ID;
