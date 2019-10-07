@@ -775,7 +775,7 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
     {
         _readByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         rVal &= 0x80;
-        rVal = ((mv - 700) / 25);
+        rVal |= ((mv - 700) / 25);
         _writeByte(AXP202_LDO3OUT_VOL, 1, &rVal);
         return AXP_PASS;
     }
