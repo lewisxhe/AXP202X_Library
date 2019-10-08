@@ -47,6 +47,13 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define FALLING 0x02
 #endif
 
+#ifdef _BV
+#undef _BV
+#endif
+// #ifndef _BV
+#define _BV(b) (1ULL << (b))
+// #endif
+
 //! Error Code
 #define AXP_PASS 0
 #define AXP_FAIL -1
@@ -362,44 +369,59 @@ typedef enum {
     AXP202_LDO3_MODE_DCIN
 } axp202_ldo3_mode_t;
 
+
+
 typedef enum {
-    //IRQ1
-    AXP202_VBUS_VHOLD_LOW_IRQ = 1 << 1,
-    AXP202_VBUS_REMOVED_IRQ = 1 << 2,
-    AXP202_VBUS_CONNECT_IRQ = 1 << 3,
-    AXP202_VBUS_OVER_VOL_IRQ = 1 << 4,
-    AXP202_ACIN_REMOVED_IRQ = 1 << 5,
-    AXP202_ACIN_CONNECT_IRQ = 1 << 6,
-    AXP202_ACIN_OVER_VOL_IRQ = 1 << 7,
-    //IRQ2
-    AXP202_BATT_LOW_TEMP_IRQ = 1 << 8,
-    AXP202_BATT_OVER_TEMP_IRQ = 1 << 9,
-    AXP202_CHARGING_FINISHED_IRQ = 1 << 10,
-    AXP202_CHARGING_IRQ = 1 << 11,
-    AXP202_BATT_EXIT_ACTIVATE_IRQ = 1 << 12,
-    AXP202_BATT_ACTIVATE_IRQ = 1 << 13,
-    AXP202_BATT_REMOVED_IRQ = 1 << 14,
-    AXP202_BATT_CONNECT_IRQ = 1 << 15,
-    //IRQ3
-    AXP202_PEK_LONGPRESS_IRQ = 1 << 16,
-    AXP202_PEK_SHORTPRESS_IRQ = 1 << 17,
-    AXP202_LDO3_LOW_VOL_IRQ = 1 << 18,
-    AXP202_DC3_LOW_VOL_IRQ = 1 << 19,
-    AXP202_DC2_LOW_VOL_IRQ = 1 << 20,
-    AXP202_CHARGE_LOW_CUR_IRQ = 1 << 21,
-    AXP202_CHIP_TEMP_HIGH_IRQ = 1 << 22,
+    //! IRQ1 REG 40H
+    AXP202_VBUS_VHOLD_LOW_IRQ       = _BV(1),   //VBUS is available, but lower than V HOLD, IRQ enable
+    AXP202_VBUS_REMOVED_IRQ         = _BV(2),   //VBUS removed, IRQ enable
+    AXP202_VBUS_CONNECT_IRQ         = _BV(3),   //VBUS connected, IRQ enable
+    AXP202_VBUS_OVER_VOL_IRQ        = _BV(4),   //VBUS over-voltage, IRQ enable
+    AXP202_ACIN_REMOVED_IRQ         = _BV(5),   //ACIN removed, IRQ enable
+    AXP202_ACIN_CONNECT_IRQ         = _BV(6),   //ACIN connected, IRQ enable
+    AXP202_ACIN_OVER_VOL_IRQ        = _BV(7),   //ACIN over-voltage, IRQ enable
 
-    //IRQ4
-    AXP202_APS_LOW_VOL_LEVEL2_IRQ = 1 << 24,
-    APX202_APS_LOW_VOL_LEVEL1_IRQ = 1 << 25,
-    AXP202_VBUS_SESSION_END_IRQ = 1 << 26,
-    AXP202_VBUS_SESSION_AB_IRQ = 1 << 27,
-    AXP202_VBUS_INVALID_IRQ = 1 << 28,
-    AXP202_VBUS_VAILD_IRQ = 1 << 29,
-    AXP202_NOE_OFF_IRQ = 1 << 30,
-    AXP202_NOE_ON_IRQ = 1 << 31,
-    AXP202_ALL_IRQ = 0xFFFF
+    //! IRQ2 REG 41H
+    AXP202_BATT_LOW_TEMP_IRQ        = _BV(8),   //Battery low-temperature, IRQ enable
+    AXP202_BATT_OVER_TEMP_IRQ       = _BV(9),   //Battery over-temperature, IRQ enable
+    AXP202_CHARGING_FINISHED_IRQ    = _BV(10),  //Charge finished, IRQ enable
+    AXP202_CHARGING_IRQ             = _BV(11),  //Be charging, IRQ enable
+    AXP202_BATT_EXIT_ACTIVATE_IRQ   = _BV(12),  //Exit battery activate mode, IRQ enable
+    AXP202_BATT_ACTIVATE_IRQ        = _BV(13),  //Battery activate mode, IRQ enable
+    AXP202_BATT_REMOVED_IRQ         = _BV(14),  //Battery removed, IRQ enable
+    AXP202_BATT_CONNECT_IRQ         = _BV(15),  //Battery connected, IRQ enable
 
+    //! IRQ3 REG 42H
+    AXP202_PEK_LONGPRESS_IRQ        = _BV(16),  //PEK long press, IRQ enable
+    AXP202_PEK_SHORTPRESS_IRQ       = _BV(17),  //PEK short press, IRQ enable
+    AXP202_LDO3_LOW_VOL_IRQ         = _BV(18),  //LDO3output voltage is lower than the set value, IRQ enable
+    AXP202_DC3_LOW_VOL_IRQ          = _BV(19),  //DC-DC3output voltage is lower than the set value, IRQ enable
+    AXP202_DC2_LOW_VOL_IRQ          = _BV(20),  //DC-DC2 output voltage is lower than the set value, IRQ enable
+    //**Reserved and unchangeable BIT 5
+    AXP202_CHARGE_LOW_CUR_IRQ       = _BV(22),  //Charge current is lower than the set current, IRQ enable
+    AXP202_CHIP_TEMP_HIGH_IRQ       = _BV(23),  //AXP202 internal over-temperature, IRQ enable
+
+    //! IRQ4 REG 43H
+    AXP202_APS_LOW_VOL_LEVEL2_IRQ   = _BV(24),  //APS low-voltage, IRQ enable（LEVEL2）
+    APX202_APS_LOW_VOL_LEVEL1_IRQ   = _BV(25),  //APS low-voltage, IRQ enable（LEVEL1）
+    AXP202_VBUS_SESSION_END_IRQ     = _BV(26),  //VBUS Session End IRQ enable
+    AXP202_VBUS_SESSION_AB_IRQ      = _BV(27),  //VBUS Session A/B IRQ enable
+    AXP202_VBUS_INVALID_IRQ         = _BV(28),  //VBUS invalid, IRQ enable
+    AXP202_VBUS_VAILD_IRQ           = _BV(29),  //VBUS valid, IRQ enable
+    AXP202_NOE_OFF_IRQ              = _BV(30),  //N_OE shutdown, IRQ enable
+    AXP202_NOE_ON_IRQ               = _BV(31),  //N_OE startup, IRQ enable
+
+    //! IRQ5 REG 44H
+    AXP202_GPIO0_EDGE_TRIGGER_IRQ   = _BV(32),  //GPIO0 input edge trigger, IRQ enable
+    AXP202_GPIO1_EDGE_TRIGGER_IRQ   = _BV(33),  //GPIO1input edge trigger or ADC input, IRQ enable
+    AXP202_GPIO2_EDGE_TRIGGER_IRQ   = _BV(34),  //GPIO2input edge trigger, IRQ enable
+    AXP202_GPIO3_EDGE_TRIGGER_IRQ   = _BV(35),  //GPIO3 input edge trigger, IRQ enable
+    //**Reserved and unchangeable BIT 4
+    AXP202_PEK_FALLING_EDGE_IRQ     = _BV(37),  //PEK press falling edge, IRQ enable
+    AXP202_PEK_RISING_EDGE_IRQ      = _BV(38),  //PEK press rising edge, IRQ enable
+    AXP202_TIMER_TIMEOUT_IRQ        = _BV(39),  //Timer timeout, IRQ enable
+
+    AXP202_ALL_IRQ                  = (0xFFFFFFFFFFULL)
 } axp_irq_t;
 
 typedef enum {
@@ -636,7 +658,7 @@ public:
 
     // return mv
     uint16_t getLDO4Voltage();                  //! Only axp173 support
-    
+
     uint16_t getLDO2Voltage();
     uint16_t getLDO3Voltage();
     uint16_t getDCDC2Voltage();
