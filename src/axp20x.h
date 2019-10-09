@@ -155,6 +155,12 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #define AXP192_LDO23OUT_VOL (0x28)
 #define AXP192_GPIO0_CTL (0x90)
 #define AXP192_GPIO0_VOL (0x91)
+#define AXP192_GPIO1_CTL (0X92)
+#define AXP192_GPIO2_CTL (0x93)
+#define AXP192_GPIO012_SIGNAL (0x94)
+#define AXP192_GPIO34_CTL (0x95)
+
+
 
 /* axp 192/202 adc data register */
 #define AXP202_BAT_AVERVOL_H8 (0x78)
@@ -445,45 +451,22 @@ typedef enum {
 } axp_ldo4_table_t;
 
 typedef enum {
+    AXP202_LDO5_1800MV,
+    AXP202_LDO5_2500MV,
+    AXP202_LDO5_2800MV,
+    AXP202_LDO5_3000MV,
+    AXP202_LDO5_3100MV,
+    AXP202_LDO5_3300MV,
+    AXP202_LDO5_3400MV,
+    AXP202_LDO5_3500MV,
+} axp_ldo5_table_t;
+
+typedef enum {
     AXP20X_LED_OFF,
     AXP20X_LED_BLINK_1HZ,
     AXP20X_LED_BLINK_4HZ,
     AXP20X_LED_LOW_LEVEL,
 } axp_chgled_mode_t;
-
-typedef enum {
-    AXP202_GPIO_1V8,
-    AXP202_GPIO_2V5,
-    AXP202_GPIO_2V8,
-    AXP202_GPIO_3V0,
-    AXP202_GPIO_3V1,
-    AXP202_GPIO_3V3,
-    AXP202_GPIO_3V4,
-    AXP202_GPIO_3V5,
-} axp202_gpio_voltage_t;
-
-typedef enum {
-    AXP202_GPIO2_OUTPUT_LOW,
-    AXP202_GPIO2_FLOATING,
-    AXP202_GPIO3_INPUT,
-} axp202_gpio2_mode_t;
-
-typedef enum {
-    AXP202_GPIO3_DIGITAL_INPUT,
-    AXP202_GPIO3_OPEN_DRAIN_OUTPUT,
-} axp202_gpio3_mode_t;
-
-typedef enum {
-    AXP202_GPIO3_OUTPUT_LOW,
-    AXP202_GPIO3_FLOATING,
-} axp202_gpio3_output_t;
-
-typedef enum {
-    AXP202_GPIO0,
-    AXP202_GPIO1,
-    AXP202_GPIO2,
-    AXP202_GPIO3,
-} axp202_gpio_t;
 
 typedef enum {
     AXP_ADC_SAMPLING_RATE_25HZ = 0,
@@ -511,14 +494,34 @@ typedef enum {
     AXP_TS_PIN_MODE_ENABLE = 3,
 } axp_ts_pin_mode_t;
 
+//! Only AXP192 and AXP202 have gpio function
 typedef enum {
-    AXP192_GPIO0_NMOD_OUTPUT = 0,
-    AXP192_GPIO0_INPUT = 1,
-    AXP192_GPIO0_LDO_OUTPUT = 2,
-    AXP192_GPIO0_ADC_INPUT = 4,
-    AXP192_GPIO0_OUTPUT_LOW = 5,
-    AXP192_GPIO0_FLOATING = 7
-} axp192_gpio0_mode_t;
+    AXP_GPIO_0,
+    AXP_GPIO_1,
+    AXP_GPIO_2,
+    AXP_GPIO_3,
+    AXP_GPIO_4,
+} axp_gpio_t;
+
+typedef enum {
+    AXP_IO_OUTPUT_LOW_MODE,
+    AXP_IO_OUTPUT_HIGH_MODE,
+    AXP_IO_INPUT_MODE,
+    AXP_IO_LDO_MODE,
+    AXP_IO_ADC_MODE,
+    AXP_IO_FLOATING_MODE,
+    AXP_IO_OPEN_DRAIN_OUTPUT_MODE,
+    AXP_IO_PWM_OUTPUT_MODE,
+    AXP_IO_EXTERN_CHARGING_CTRL_MODE,
+} axp_gpio_mode_t;
+
+typedef enum {
+    AXP_IRQ_NONE,
+    AXP_IRQ_RISING,
+    AXP_IRQ_FALLING,
+    AXP_IRQ_DOUBLE_EDGE,
+} axp_gpio_irq_t;
+
 
 typedef enum {
     AXP192_GPIO_1V8,
@@ -689,75 +692,11 @@ public:
     uint8_t getAdcSamplingRate();
     float getCoulombData();
 
-    int gpio0Setting(axp192_gpio0_mode_t mode); //! Only axp192
-    int gpio0SetVoltage(axp192_gpio_voltage_t vol);
-    uint16_t gpio0GetVoltage();
 
-    //! The following features have not been tested
-    /**
-     * @brief  setGPIO0Voltage
-     * @note
-     * @param  mv:  axp202_gpio_voltage_t enum
-     * @retval
-     */
-    int setGPIO0Voltage(uint8_t mv);
+    int setGPIOMode(axp_gpio_t gpio, axp_gpio_mode_t mode);
+    int setGPIOIrq(axp_gpio_t gpio, axp_gpio_irq_t irq);
+    int setLDO5Voltage(axp_ldo5_table_t vol);
 
-    /**
-     * @brief   setGPIO0Level
-     * @note
-     * @param  level:   0 or 1
-     * @retval
-     */
-    int setGPIO0Level(uint8_t level);
-
-    /**
-     * @brief   setGPIO1Level
-     * @note
-     * @param  level:   0 or 1
-     * @retval
-     */
-    int setGPIO1Level(uint8_t level);
-
-    /**
-     * @brief   readGpioStatus
-     * @note
-     * @retval
-     */
-    int readGpioStatus();
-
-    int readGpio0Level();
-
-    int readGpio1Level();
-
-    int readGpio2Level();
-
-    int setGpio2Mode(uint8_t mode);
-
-    /**
-     * @brief  setGpio3Mode
-     * @note   Set GPIO3 mode, can only be set to output low level, floating, can not output high level
-     * @param  mode:    axp202_gpio3_mode_t enum
-     * @retval
-     */
-    int setGpio3Mode(uint8_t mode);
-
-    /**
-     * @brief   setGpio3Level
-     * @note    Can only be set when GPIO3 is configured as output mode
-     * @param  level:   axp202_gpio3_output_t enum
-     * @retval
-     */
-    int setGpio3Level(uint8_t level);
-
-    /**
-     * @brief   setGpioInterruptMode
-     * @note    Interrupt can only be set when GPIO is configured as input mode
-     * @param  gpio:    axp202_gpio_t enum
-     * @param  mode:    RISING or FALLING
-     * @param  en:      true or false
-     * @retval
-     */
-    int setGpioInterruptMode(uint8_t gpio, int mode, bool en);
 
 private:
     uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl5)
@@ -811,6 +750,22 @@ private:
 
     int _setGpioInterrupt(uint8_t *val, int mode, bool en);
     int _axp_probe();
+    int _axp_irq_mask(axp_gpio_irq_t irq);
+
+    int _axp192_gpio_set(axp_gpio_t gpio, axp_gpio_mode_t mode);
+    int _axp192_gpio_0_select( axp_gpio_mode_t mode);
+    int _axp192_gpio_1_select( axp_gpio_mode_t mode);
+    int _axp192_gpio_3_select( axp_gpio_mode_t mode);
+    int _axp192_gpio_4_select( axp_gpio_mode_t mode);
+
+    int _axp202_gpio_set(axp_gpio_t gpio, axp_gpio_mode_t mode);
+    int _axp202_gpio_0_select( axp_gpio_mode_t mode);
+    int _axp202_gpio_1_select( axp_gpio_mode_t mode);
+    int _axp202_gpio_2_select( axp_gpio_mode_t mode);
+    int _axp202_gpio_3_select( axp_gpio_mode_t mode);
+    int _axp202_gpio_irq_set(axp_gpio_t gpio, axp_gpio_irq_t irq);
+
+
 
     static const uint8_t startupParams[], longPressParams[], shutdownParams[], targetVolParams[];
     static uint8_t _outputReg;

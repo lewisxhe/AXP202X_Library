@@ -1160,214 +1160,10 @@ uint16_t AXP20X_Class::getDCDC1Voltage()
     return val * 25 + 700;
 }
 
-int AXP20X_Class::setGPIO0Voltage(uint8_t param)
-{
-    uint8_t params[] = {
-        0b11111000,
-        0b11111001,
-        0b11111010,
-        0b11111011,
-        0b11111100,
-        0b11111101,
-        0b11111110,
-        0b11111111,
-    };
-    if (!_init)
-        return AXP_NOT_INIT;
-    if (param > sizeof(params) / sizeof(params[0]))
-        return AXP_INVALID;
-    uint8_t val = 0;
-    _readByte(AXP202_GPIO0_VOL, 1, &val);
-    val &= 0b11111000;
-    val |= params[param];
-    _writeByte(AXP202_GPIO0_VOL, 1, &val);
-    return AXP_PASS;
-}
 
-int AXP20X_Class::setGPIO0Level(uint8_t level)
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    _readByte(AXP202_GPIO0_CTL, 1, &val);
-    val = level ? val & 0b11111000 : (val & 0b11111000) | 0b00000001;
-    _writeByte(AXP202_GPIO0_CTL, 1, &val);
-    return AXP_PASS;
-}
-int AXP20X_Class::setGPIO1Level(uint8_t level)
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    _readByte(AXP202_GPIO1_CTL, 1, &val);
-    val = level ? val & 0b11111000 : (val & 0b11111000) | 0b00000001;
-    _writeByte(AXP202_GPIO1_CTL, 1, &val);
-    return AXP_PASS;
-}
-
-int AXP20X_Class::readGpioStatus()
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    _readByte(AXP202_GPIO012_SIGNAL, 1, &val);
-    _gpio[0] = val & BIT_MASK(4);
-    _gpio[1] = val & BIT_MASK(5);
-    _gpio[2] = val & BIT_MASK(6);
-    _readByte(AXP202_GPIO3_CTL, 1, &val);
-    _gpio[3] = val & 1;
-    return AXP_PASS;
-}
-
-int AXP20X_Class::readGpio0Level()
-{
-    return _gpio[0];
-}
-
-int AXP20X_Class::readGpio1Level()
-{
-    return _gpio[1];
-}
-
-int AXP20X_Class::readGpio2Level()
-{
-    return _gpio[2];
-}
-
-int AXP20X_Class::setGpio2Mode(uint8_t mode)
-{
-    uint8_t params[] = {
-        0b11111000,
-        0b11111001,
-        0b11111010,
-    };
-    if (!_init)
-        return AXP_NOT_INIT;
-    if (mode > sizeof(params) / sizeof(params[0]))
-        return AXP_INVALID;
-    uint8_t val = 0;
-    _readByte(AXP202_GPIO2_CTL, 1, &val);
-    val &= params[0];
-    val |= params[mode];
-    _writeByte(AXP202_GPIO2_CTL, 1, &val);
-    return AXP_PASS;
-}
-
-int AXP20X_Class::setGpio3Mode(uint8_t mode)
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    _readByte(AXP202_GPIO3_CTL, 1, &val);
-    if (mode == AXP202_GPIO3_DIGITAL_INPUT) {
-        val |= BIT_MASK(2);
-    } else if (mode == AXP202_GPIO3_OPEN_DRAIN_OUTPUT) {
-        val &= ~BIT_MASK(2);
-    } else {
-        return AXP_INVALID;
-    }
-    return AXP_PASS;
-}
-
-int AXP20X_Class::setGpio3Level(uint8_t level)
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    _readByte(AXP202_GPIO3_CTL, 1, &val);
-    if (!(val & BIT_MASK(2))) {
-        return AXP_FAIL;
-    }
-    val = level ? val & (~BIT_MASK(1)) : val | BIT_MASK(1);
-    _writeByte(AXP202_GPIO3_CTL, 1, &val);
-    return AXP_PASS;
-}
-
-int AXP20X_Class::_setGpioInterrupt(uint8_t *val, int mode, bool en)
-{
-    switch (mode) {
-    case RISING:
-        *val = en ? *val | BIT_MASK(7) : *val & (~BIT_MASK(7));
-        return AXP_PASS;
-    case FALLING:
-        *val = en ? *val | BIT_MASK(6) : *val & (~BIT_MASK(6));
-        return AXP_PASS;
-    default:
-        return AXP_FAIL;
-    }
-}
-
-int AXP20X_Class::setGpioInterruptMode(uint8_t gpio, int mode, bool en)
-{
-    uint8_t val = 0;
-    if (!_init)
-        return AXP_NOT_INIT;
-    switch (gpio) {
-    case AXP202_GPIO0:
-        _readByte(AXP202_GPIO0_CTL, 1, &val);
-        _setGpioInterrupt(&val, mode, en);
-        return AXP_PASS;
-    case AXP202_GPIO1:
-        _readByte(AXP202_GPIO1_CTL, 1, &val);
-        _setGpioInterrupt(&val, mode, en);
-        return AXP_PASS;
-    case AXP202_GPIO2:
-        _readByte(AXP202_GPIO2_CTL, 1, &val);
-        _setGpioInterrupt(&val, mode, en);
-        return AXP_PASS;
-    case AXP202_GPIO3:
-        _readByte(AXP202_GPIO3_CTL, 1, &val);
-        _setGpioInterrupt(&val, mode, en);
-        return AXP_PASS;
-    default:
-        return AXP_FAIL;
-    }
-}
-
-int AXP20X_Class::gpio0Setting(axp192_gpio0_mode_t mode)
-{
-    uint8_t rVal;
-    if (!_init)
-        return AXP_NOT_INIT;
-    if (_chip_id == AXP192_CHIP_ID) {
-        _readByte(AXP192_GPIO0_CTL, 1, &rVal);
-        rVal &= 0xF8;
-        rVal |= mode;
-        _writeByte(AXP192_GPIO0_CTL, 1, &rVal);
-        return AXP_PASS;
-    }
-    return AXP_FAIL;
-}
-
-int AXP20X_Class::gpio0SetVoltage(axp192_gpio_voltage_t vol)
-{
-    uint8_t rVal;
-    if (!_init)
-        return AXP_NOT_INIT;
-    if (_chip_id == AXP192_CHIP_ID) {
-        _readByte(AXP192_GPIO0_VOL, 1, &rVal);
-        rVal &= 0x0F;
-        rVal |= (vol << 4);
-        _writeByte(AXP192_GPIO0_VOL, 1, &rVal);
-        return AXP_PASS;
-    }
-    return AXP_FAIL;
-}
-
-uint16_t AXP20X_Class::gpio0GetVoltage()
-{
-    uint8_t rVal;
-    if (!_init)
-        return AXP_NOT_INIT;
-    if (_chip_id == AXP192_CHIP_ID) {
-        _readByte(AXP192_GPIO0_VOL, 1, &rVal);
-        rVal &= 0xF0;
-        rVal >>= 4;
-        return rVal;
-    }
-    return 0;
-}
-
+/***********************************************
+ *              !!! TIMER FUNCTION !!!
+ * *********************************************/
 
 int AXP20X_Class::setTimer(uint8_t minutes)
 {
@@ -1407,4 +1203,364 @@ int AXP20X_Class::clearTimerStatus()
         return AXP_PASS;
     }
     return AXP_NOT_SUPPORT;
+}
+
+/***********************************************
+ *              !!! GPIO FUNCTION !!!
+ * *********************************************/
+
+int AXP20X_Class::_axp192_gpio_0_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_OUTPUT_LOW_MODE:
+        return 0b101;
+    case AXP_IO_INPUT_MODE:
+        return 0b001;
+    case AXP_IO_LDO_MODE:
+        return 0b010;
+    case AXP_IO_ADC_MODE:
+        return 0b100;
+    case AXP_IO_FLOATING_MODE:
+        return 0b111;
+    case AXP_IO_OPEN_DRAIN_OUTPUT_MODE:
+        return 0;
+    case AXP_IO_OUTPUT_HIGH_MODE:
+    case AXP_IO_PWM_OUTPUT_MODE:
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp192_gpio_1_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_OUTPUT_LOW_MODE:
+        return 0b101;
+    case AXP_IO_INPUT_MODE:
+        return 0b001;
+    case AXP_IO_ADC_MODE:
+        return 0b100;
+    case AXP_IO_FLOATING_MODE:
+        return 0b111;
+    case AXP_IO_OPEN_DRAIN_OUTPUT_MODE:
+        return 0;
+    case AXP_IO_PWM_OUTPUT_MODE:
+        return 0b010;
+    case AXP_IO_OUTPUT_HIGH_MODE:
+    case AXP_IO_LDO_MODE:
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+
+int AXP20X_Class::_axp192_gpio_3_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_EXTERN_CHARGING_CTRL_MODE:
+        return 0;
+    case AXP_IO_OPEN_DRAIN_OUTPUT_MODE:
+        return 1;
+    case AXP_IO_INPUT_MODE:
+        return 2;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp192_gpio_4_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_EXTERN_CHARGING_CTRL_MODE:
+        return 0;
+    case AXP_IO_OPEN_DRAIN_OUTPUT_MODE:
+        return 1;
+    case AXP_IO_INPUT_MODE:
+        return 2;
+    case AXP_IO_ADC_MODE:
+        return 3;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+
+int AXP20X_Class::_axp192_gpio_set(axp_gpio_t gpio, axp_gpio_mode_t mode)
+{
+    int rslt;
+    uint8_t val;
+    switch (gpio) {
+    case AXP_GPIO_0: {
+        rslt = _axp192_gpio_0_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP192_GPIO0_CTL, 1, &val);
+        val &= 0xF8;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP192_GPIO0_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_1: {
+        rslt = _axp192_gpio_1_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP192_GPIO1_CTL, 1, &val);
+        val &= 0xF8;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP192_GPIO1_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_2: {
+        rslt = _axp192_gpio_1_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP192_GPIO2_CTL, 1, &val);
+        val &= 0xF8;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP192_GPIO2_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_3: {
+        rslt = _axp192_gpio_3_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP192_GPIO34_CTL, 1, &val);
+        val &= 0xFC;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP192_GPIO34_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_4: {
+        rslt = _axp192_gpio_4_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP192_GPIO34_CTL, 1, &val);
+        val &= 0xF3;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP192_GPIO34_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp202_gpio_0_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_OUTPUT_LOW_MODE:
+        return 0;
+    case AXP_IO_OUTPUT_HIGH_MODE:
+        return 1;
+    case AXP_IO_INPUT_MODE:
+        return 2;
+    case AXP_IO_LDO_MODE:
+        return 3;
+    case AXP_IO_ADC_MODE:
+        return 4;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp202_gpio_1_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_OUTPUT_LOW_MODE:
+        return 0;
+    case AXP_IO_OUTPUT_HIGH_MODE:
+        return 1;
+    case AXP_IO_INPUT_MODE:
+        return 2;
+    case AXP_IO_ADC_MODE:
+        return 4;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp202_gpio_2_select( axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_OUTPUT_LOW_MODE:
+        return 0;
+    case AXP_IO_INPUT_MODE:
+        return 2;
+    case AXP_IO_FLOATING_MODE:
+        return 1;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+
+int AXP20X_Class::_axp202_gpio_3_select(axp_gpio_mode_t mode)
+{
+    switch (mode) {
+    case AXP_IO_INPUT_MODE:
+        return 1;
+    case AXP_IO_OPEN_DRAIN_OUTPUT_MODE:
+        return 0;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp202_gpio_set(axp_gpio_t gpio, axp_gpio_mode_t mode)
+{
+    uint8_t val;
+    int rslt;
+    switch (gpio) {
+    case AXP_GPIO_0: {
+        rslt = _axp202_gpio_0_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP202_GPIO0_CTL, 1, &val);
+        val &= 0b11111000;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP202_GPIO0_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_1: {
+        rslt = _axp202_gpio_1_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP202_GPIO1_CTL, 1, &val);
+        val &= 0b11111000;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP202_GPIO1_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_2: {
+        rslt = _axp202_gpio_2_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP202_GPIO2_CTL, 1, &val);
+        val &= 0b11111000;
+        val |= (uint8_t)rslt;
+        _writeByte(AXP202_GPIO2_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    case AXP_GPIO_3: {
+        rslt = _axp202_gpio_3_select(mode);
+        if (rslt < 0)return rslt;
+        _readByte(AXP202_GPIO3_CTL, 1, &val);
+        val = rslt ? (val | BIT_MASK(2)) : (val & (~BIT_MASK(2)));
+        _writeByte(AXP202_GPIO3_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+
+int AXP20X_Class::setGPIOMode(axp_gpio_t gpio, axp_gpio_mode_t mode)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        return _axp202_gpio_set(gpio, mode);
+        break;
+    case AXP192_CHIP_ID:
+        return _axp192_gpio_set(gpio, mode);
+        break;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+
+int AXP20X_Class::_axp_irq_mask(axp_gpio_irq_t irq)
+{
+    switch (irq) {
+    case AXP_IRQ_NONE:
+        return 0;
+    case AXP_IRQ_RISING:
+        return BIT_MASK(7);
+    case AXP_IRQ_FALLING:
+        return BIT_MASK(6);
+    case AXP_IRQ_DOUBLE_EDGE:
+        return 0b1100000;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::_axp202_gpio_irq_set(axp_gpio_t gpio, axp_gpio_irq_t irq)
+{
+    uint8_t reg;
+    uint8_t val;
+    int mask;
+    mask = _axp_irq_mask(irq);
+
+    if (mask < 0)return mask;
+    switch (gpio) {
+    case AXP_GPIO_0:
+        reg = AXP202_GPIO0_CTL;
+        break;
+    case AXP_GPIO_1:
+        reg = AXP202_GPIO1_CTL;
+        break;
+    case AXP_GPIO_2:
+        reg = AXP202_GPIO2_CTL;
+        break;
+    case AXP_GPIO_3:
+        reg = AXP202_GPIO3_CTL;
+        break;
+    default:
+        return AXP_NOT_SUPPORT;
+    }
+    _readByte(reg, 1, &val);
+    val = mask == 0 ? (val & 0b00111111) : (val | mask);
+    _writeByte(reg, 1, &val);
+    return AXP_PASS;
+}
+
+
+int AXP20X_Class::setGPIOIrq(axp_gpio_t gpio, axp_gpio_irq_t irq)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        return _axp202_gpio_irq_set(gpio, irq);
+    case AXP192_CHIP_ID:
+    case AXP173_CHIP_ID:
+        return AXP_NOT_SUPPORT;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::setLDO5Voltage(axp_ldo5_table_t vol)
+{
+    const uint8_t params[] = {
+        0b11111000, //1.8V
+        0b11111001, //2.5V
+        0b11111010, //2.8V
+        0b11111011, //3.0V
+        0b11111100, //3.1V
+        0b11111101, //3.3V
+        0b11111110, //3.4V
+        0b11111111, //3.5V
+    };
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id != AXP202_CHIP_ID)
+        return AXP_NOT_SUPPORT;
+    if (vol > sizeof(params) / sizeof(params[0]))
+        return AXP_ARG_INVALID;
+    uint8_t val = 0;
+    _readByte(AXP202_GPIO0_VOL, 1, &val);
+    val &= 0b11111000;
+    val |= params[vol];
+    _writeByte(AXP202_GPIO0_VOL, 1, &val);
+    return AXP_PASS;
 }
