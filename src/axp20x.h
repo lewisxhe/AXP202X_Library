@@ -697,6 +697,8 @@ public:
     int setGPIOIrq(axp_gpio_t gpio, axp_gpio_irq_t irq);
     int setLDO5Voltage(axp_ldo5_table_t vol);
 
+    int gpioWrite(axp_gpio_t gpio, uint8_t vol);
+    int gpioRead(axp_gpio_t gpio);
 
 private:
     uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl5)
@@ -764,7 +766,8 @@ private:
     int _axp202_gpio_2_select( axp_gpio_mode_t mode);
     int _axp202_gpio_3_select( axp_gpio_mode_t mode);
     int _axp202_gpio_irq_set(axp_gpio_t gpio, axp_gpio_irq_t irq);
-
+    int _axp202_gpio_write(axp_gpio_t gpio, uint8_t val);
+    int _axp202_gpio_read(axp_gpio_t gpio);
 
 
     static const uint8_t startupParams[], longPressParams[], shutdownParams[], targetVolParams[];

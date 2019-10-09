@@ -1564,3 +1564,96 @@ int AXP20X_Class::setLDO5Voltage(axp_ldo5_table_t vol)
     _writeByte(AXP202_GPIO0_VOL, 1, &val);
     return AXP_PASS;
 }
+
+
+int AXP20X_Class::_axp202_gpio_write(axp_gpio_t gpio, uint8_t val)
+{
+    uint8_t reg;
+    uint8_t wVal = 0;
+    switch (gpio) {
+    case AXP_GPIO_0:
+        reg = AXP202_GPIO0_CTL;
+        break;
+    case AXP_GPIO_1:
+        reg = AXP202_GPIO1_CTL;
+        break;
+    case AXP_GPIO_2:
+        reg = AXP202_GPIO2_CTL;
+        if (val) {
+            return AXP_NOT_SUPPORT;
+        }
+        break;
+    case AXP_GPIO_3:
+        if (val) {
+            return AXP_NOT_SUPPORT;
+        }
+        _readByte(AXP202_GPIO3_CTL, 1, &wVal);
+        wVal &= 0b11111101;
+        _writeByte(AXP202_GPIO3_CTL, 1, &wVal);
+        return AXP_PASS;
+    default:
+        return AXP_NOT_SUPPORT;
+    }
+    _readByte(reg, 1, &wVal);
+    wVal = val ? (wVal | 1) : (wVal & 0b11111000);
+    _writeByte(reg, 1, &wVal);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::_axp202_gpio_read(axp_gpio_t gpio)
+{
+    uint8_t val;
+    uint8_t reg = AXP202_GPIO012_SIGNAL;
+    uint8_t offset;
+    switch (gpio) {
+    case AXP_GPIO_0:
+        offset = 4;
+        break;
+    case AXP_GPIO_1:
+        offset = 5;
+        break;
+    case AXP_GPIO_2:
+        offset = 6;
+        break;
+    case AXP_GPIO_3:
+        reg = AXP202_GPIO3_CTL;
+        offset = 0;
+        break;
+    default:
+        return AXP_NOT_SUPPORT;
+    }
+    _readByte(reg, 1, &val);
+    return val & BIT_MASK(offset) ? 1 : 0;
+}
+
+int AXP20X_Class::gpioWrite(axp_gpio_t gpio, uint8_t val)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        return _axp202_gpio_write(gpio, val);
+    case AXP192_CHIP_ID:
+    case AXP173_CHIP_ID:
+        return AXP_NOT_SUPPORT;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::gpioRead(axp_gpio_t gpio)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        return _axp202_gpio_read(gpio);
+    case AXP192_CHIP_ID:
+    case AXP173_CHIP_ID:
+        return AXP_NOT_SUPPORT;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
