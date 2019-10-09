@@ -55,10 +55,12 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 // #endif
 
 //! Error Code
-#define AXP_PASS 0
-#define AXP_FAIL -1
-#define AXP_INVALID -2
-#define AXP_NOT_INIT -3
+#define AXP_PASS            (0)
+#define AXP_FAIL            (-1)
+#define AXP_INVALID         (-2)
+#define AXP_NOT_INIT        (-3)
+#define AXP_NOT_SUPPORT     (-4)
+#define AXP_ARG_INVALID     (-5)
 
 //! Chip Address
 #define AXP202_SLAVE_ADDRESS (0x35)
@@ -588,6 +590,7 @@ public:
 
     bool isPEKShortPressIRQ();
     bool isPEKLongtPressIRQ();
+    bool isTimerTimeoutIRQ();
 
     //! Group4 ADC data
     float getAcinVoltage();
@@ -617,6 +620,10 @@ public:
     int setTSfunction(axp_ts_pin_function_t func);
     int setTSmode(axp_ts_pin_mode_t mode);
 
+
+    int setTimer(uint8_t minutes);
+    int offTimer();
+    int clearTimerStatus();
     /**
      * param:   axp202_startup_time_t or axp192_startup_time_t
      */
@@ -639,7 +646,7 @@ public:
     /**
      * params: axp_irq_t
      */
-    int enableIRQ(uint32_t params, bool en);
+    int enableIRQ(uint64_t params, bool en);
     int readIRQ();
     void clearIRQ();
 

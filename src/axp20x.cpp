@@ -495,7 +495,7 @@ int AXP20X_Class::adc2Enable(uint16_t params, bool en)
     return AXP_PASS;
 }
 
-int AXP20X_Class::enableIRQ(uint32_t params, bool en)
+int AXP20X_Class::enableIRQ(uint64_t params, bool en)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -541,6 +541,17 @@ int AXP20X_Class::enableIRQ(uint32_t params, bool en)
             val &= ~(val1);
         AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", AXP202_INTEN4, val);
         _writeByte(AXP202_INTEN4, 1, &val);
+    }
+
+    if (params & 0xFF00000000) {
+        val1 = params >> 32;
+        _readByte(AXP202_INTEN5, 1, &val);
+        if (en)
+            val |= val1;
+        else
+            val &= ~(val1);
+        AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", AXP202_INTEN5, val);
+        _writeByte(AXP202_INTEN5, 1, &val);
     }
     return AXP_PASS;
 }
@@ -664,6 +675,11 @@ bool AXP20X_Class::isPEKShortPressIRQ()
 bool AXP20X_Class::isPEKLongtPressIRQ()
 {
     return (bool)(_irq[2] & BIT_MASK(0));
+}
+
+bool AXP20X_Class::isTimerTimeoutIRQ()
+{
+    return (bool)(_irq[4] & BIT_MASK(7));
 }
 
 bool AXP20X_Class::isVBUSPlug()
@@ -1350,4 +1366,45 @@ uint16_t AXP20X_Class::gpio0GetVoltage()
         return rVal;
     }
     return 0;
+}
+
+
+int AXP20X_Class::setTimer(uint8_t minutes)
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id == AXP202_CHIP_ID) {
+        if (minutes > 63) {
+            return AXP_ARG_INVALID;
+        }
+        _writeByte(AXP202_TIMER_CTL, 1, &minutes);
+        return AXP_PASS;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::offTimer()
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id == AXP202_CHIP_ID) {
+        uint8_t minutes = 0x80;
+        _writeByte(AXP202_TIMER_CTL, 1, &minutes);
+        return AXP_PASS;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::clearTimerStatus()
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id == AXP202_CHIP_ID) {
+        uint8_t val;
+        _readByte(AXP202_TIMER_CTL, 1, &val);
+        val |= 0x80;
+        _writeByte(AXP202_TIMER_CTL, 1, &val);
+        return AXP_PASS;
+    }
+    return AXP_NOT_SUPPORT;
 }
