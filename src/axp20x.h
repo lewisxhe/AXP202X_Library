@@ -50,9 +50,7 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 #ifdef _BV
 #undef _BV
 #endif
-// #ifndef _BV
 #define _BV(b) (1ULL << (b))
-// #endif
 
 //! Error Code
 #define AXP_PASS            (0)
