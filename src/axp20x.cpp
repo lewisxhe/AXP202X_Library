@@ -476,8 +476,6 @@ int AXP20X_Class::adc1Enable(uint16_t params, bool en)
     else
         val &= ~(params);
     _writeByte(AXP202_ADC_EN1, 1, &val);
-
-    _readByte(AXP202_ADC_EN1, 1, &val);
     return AXP_PASS;
 }
 
@@ -704,6 +702,7 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
         mv = 2275;
     }
     uint8_t val = (mv - 700) / 25;
+    //! axp173/192/202 same register
     _writeByte(AXP202_DC2OUT_VOL, 1, &val);
     return AXP_PASS;
 }
@@ -711,6 +710,7 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
 uint16_t AXP20X_Class::getDCDC2Voltage()
 {
     uint8_t val = 0;
+    //! axp173/192/202 same register
     _readByte(AXP202_DC2OUT_VOL, 1, &val);
     return val * 25 + 700;
 }
@@ -719,6 +719,7 @@ uint16_t AXP20X_Class::getDCDC3Voltage()
 {
     if (!_init)
         return 0;
+    if (_chip_id == AXP173_CHIP_ID)return AXP_NOT_SUPPORT;
     uint8_t val = 0;
     _readByte(AXP202_DC3OUT_VOL, 1, &val);
     return val * 25 + 700;
@@ -728,6 +729,7 @@ int AXP20X_Class::setDCDC3Voltage(uint16_t mv)
 {
     if (!_init)
         return AXP_NOT_INIT;
+    if (_chip_id == AXP173_CHIP_ID)return AXP_NOT_SUPPORT;
     if (mv < 700) {
         AXP_DEBUG("DCDC3:Below settable voltage:700mV~3500mV");
         mv = 700;
@@ -869,16 +871,26 @@ int AXP20X_Class::setLDO4Voltage(uint16_t mv)
     return AXP_PASS;
 }
 
-//! Only axp173 support
 uint16_t AXP20X_Class::getLDO4Voltage()
 {
+    const uint16_t ldo4_table[] = {1250, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 2700, 2800, 3000, 3100, 3200, 3300};
     if (!_init)
         return 0;
-    if (_chip_id != AXP173_CHIP_ID)
-        return 0;
     uint8_t val = 0;
-    _readByte(AXP173_LDO4_VLOTAGE, 1, &val);
-    return val * 25 + 700;
+    switch (_chip_id) {
+    case AXP173_CHIP_ID:
+        _readByte(AXP173_LDO4_VLOTAGE, 1, &val);
+        return val * 25 + 700;
+    case AXP202_CHIP_ID:
+        _readByte(AXP202_LDO24OUT_VOL, 1, &val);
+        val &= 0xF;
+        return ldo4_table[val];
+        break;
+    case AXP192_CHIP_ID:
+    default:
+        break;
+    }
+    return 0;
 }
 
 

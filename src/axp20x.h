@@ -656,21 +656,39 @@ public:
     uint16_t getDCDC1Voltage(); //! Only AXP192 support and AXP173
 
     // -----------------
+
+    /*
+    !! Chip resource table
+    | CHIP     | AXP173           | AXP192           | AXP202           |
+    | -------- | ---------------- | ---------------- | ---------------- |
+    | DC1      | 0v7~3v5  /1200mA | 0v7~3v5  /1200mA | X                |
+    | DC2      | 0v7~2v275/1600mA | 0v7~2v275/1600mA | 0v7~2v275/1600mA |
+    | DC3      | X                | 0v7~3v5  /700mA  | 0v7~3v5  /1200mA |
+    | LDO1     | 3v3      /30mA   | 3v3      /30mA   | 3v3      /30mA   |
+    | LDO2     | 1v8~3v3  /200mA  | 1v8~3v3  /200mA  | 1v8~3v3  /200mA  |
+    | LDO3     | 1v8~3v3  /200mA  | 1v8~3v3  /200mA  | 0v7~3v3  /200mA  |
+    | LDO4     | 0v7~3v5  /500mA  | X                | 1v8~3v3  /200mA  |
+    | LDO5/IO0 | X                | 1v8~3v3  /50mA   | 1v8~3v3  /50mA   |
+    */
     int setDCDC2Voltage(uint16_t mv);
+    uint16_t getDCDC2Voltage();
+
     int setDCDC3Voltage(uint16_t mv);
+    uint16_t getDCDC3Voltage();
+
     int setLDO2Voltage(uint16_t mv);
+    uint16_t getLDO2Voltage();
+
     int setLDO3Voltage(uint16_t mv);
+    uint16_t getLDO3Voltage();
+
 
     int setLDO4Voltage(axp_ldo4_table_t param); //! Only axp202 support
     int setLDO4Voltage(uint16_t mv);            //! Only axp173 support
 
     // return mv
-    uint16_t getLDO4Voltage();                  //! Only axp173 support
+    uint16_t getLDO4Voltage();                  //! Only axp173/axp202 support
 
-    uint16_t getLDO2Voltage();
-    uint16_t getLDO3Voltage();
-    uint16_t getDCDC2Voltage();
-    uint16_t getDCDC3Voltage();
 
     /**
      * @param  mode: axp_chgled_mode_t
