@@ -59,6 +59,8 @@ const uint8_t AXP20X_Class::targetVolParams[] = {
     0b01100000
 };
 
+
+
 // Power Output Control register
 uint8_t AXP20X_Class::_outputReg;
 
@@ -1671,3 +1673,54 @@ int AXP20X_Class::gpioRead(axp_gpio_t gpio)
     }
     return AXP_NOT_SUPPORT;
 }
+
+
+
+int AXP20X_Class::getChargeControlCur()
+{
+    int cur;
+    uint8_t val;
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        val &= 0x0F;
+        cur =  val * 100 + 300;
+        if (cur > 1800 || cur < 300)return 0;
+        return cur;
+    case AXP192_CHIP_ID:
+    case AXP173_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        return val & 0x0F;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+int AXP20X_Class::setChargeControlCur(uint16_t mA)
+{
+    uint8_t val;
+    if (!_init)
+        return AXP_NOT_INIT;
+    switch (_chip_id) {
+    case AXP202_CHIP_ID:
+        mA -= 300;
+        val = mA / 100;
+        _writeByte(AXP202_CHARGE1, 1, &val);
+        return AXP_PASS;
+    case AXP192_CHIP_ID:
+    case AXP173_CHIP_ID:    
+        val = mA;
+        if(val > AXP1XX_CHARGE_CUR_1320MA){
+            val = AXP1XX_CHARGE_CUR_1320MA;
+        }
+        _writeByte(AXP202_CHARGE1, 1, &val);
+        return AXP_PASS;
+    default:
+        break;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
