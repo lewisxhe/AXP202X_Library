@@ -726,6 +726,12 @@ public:
     int setAdcSamplingRate(axp_adc_sampling_rate_t rate);
     uint8_t getAdcSamplingRate();
     float getCoulombData();
+    uint8_t getCoulombRegister();
+    int setCoulombRegister(uint8_t val);
+    int EnableCoulombcounter(void);
+    int DisableCoulombcounter(void);
+    int StopCoulombcounter(void);
+    int ClearCoulombcounter(void);
 
 
     int setGPIOMode(axp_gpio_t gpio, axp_gpio_mode_t mode);

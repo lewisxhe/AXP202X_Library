@@ -364,7 +364,7 @@ uint32_t AXP20X_Class::getBattChargeCoulomb()
     uint8_t buffer[4];
     if (!_init)
         return AXP_NOT_INIT;
-    _readByte(0xB1, 4, buffer);
+    _readByte(0xB0, 4, buffer);
     return (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3];
 }
 
@@ -386,6 +386,77 @@ float AXP20X_Class::getCoulombData()
     float result = 65536.0 * 0.5 * (charge - discharge) / 3600.0 / rate;
     return result;
 }
+
+
+//-------------------------------------------------------
+// New Coulomb functions  by MrFlexi
+//-------------------------------------------------------
+
+uint8_t AXP20X_Class::getCoulombRegister()
+{
+    uint8_t buffer[1];
+    if (!_init)
+        return AXP_NOT_INIT;
+    _readByte(AXP202_COULOMB_CTL, 1, buffer);
+    return buffer[1];
+}
+
+
+int AXP20X_Class::setCoulombRegister(uint8_t val)
+{
+    if (!_init)
+        return AXP_NOT_INIT;    
+    _writeByte(AXP202_COULOMB_CTL, 1, &val);
+    return AXP_PASS;
+}
+
+
+int AXP20X_Class::EnableCoulombcounter(void)
+{
+   
+     if (!_init)
+        return AXP_NOT_INIT;    
+     uint8_t val = 0x80;    
+    _writeByte(AXP202_COULOMB_CTL, 1, &val);
+    return AXP_PASS;    
+}
+
+int AXP20X_Class::DisableCoulombcounter(void)
+{
+   
+     if (!_init)
+        return AXP_NOT_INIT;    
+     uint8_t val = 0x00;    
+    _writeByte(AXP202_COULOMB_CTL, 1, &val);
+    return AXP_PASS;    
+}
+
+int AXP20X_Class::StopCoulombcounter(void)
+{
+   
+     if (!_init)
+        return AXP_NOT_INIT;    
+     uint8_t val = 0xB8;    
+    _writeByte(AXP202_COULOMB_CTL, 1, &val);
+    return AXP_PASS;    
+}
+
+
+int AXP20X_Class::ClearCoulombcounter(void)
+{
+   
+     if (!_init)
+        return AXP_NOT_INIT;    
+     uint8_t val = 0xA0;    
+    _writeByte(AXP202_COULOMB_CTL, 1, &val);
+    return AXP_PASS;    
+}
+
+//-------------------------------------------------------
+// END 
+//-------------------------------------------------------
+
+
 
 uint8_t AXP20X_Class::getAdcSamplingRate()
 {
