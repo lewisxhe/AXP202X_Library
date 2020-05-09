@@ -1777,16 +1777,19 @@ int AXP20X_Class::setChargeControlCur(uint16_t mA)
         return AXP_NOT_INIT;
     switch (_chip_id) {
     case AXP202_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        val &= 0b11110000;
         mA -= 300;
-        val = mA / 100;
+        val |= (mA / 100);
         _writeByte(AXP202_CHARGE1, 1, &val);
         return AXP_PASS;
     case AXP192_CHIP_ID:
-    case AXP173_CHIP_ID:    
-        val = mA;
-        if(val > AXP1XX_CHARGE_CUR_1320MA){
-            val = AXP1XX_CHARGE_CUR_1320MA;
-        }
+    case AXP173_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        val &= 0b11110000;
+        if(mA > AXP1XX_CHARGE_CUR_1320MA)
+            mA = AXP1XX_CHARGE_CUR_1320MA;
+        val |= mA;
         _writeByte(AXP202_CHARGE1, 1, &val);
         return AXP_PASS;
     default:
