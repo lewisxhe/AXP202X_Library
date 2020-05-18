@@ -394,11 +394,11 @@ float AXP20X_Class::getCoulombData()
 
 uint8_t AXP20X_Class::getCoulombRegister()
 {
-    uint8_t buffer[1];
+    uint8_t buffer;
     if (!_init)
         return AXP_NOT_INIT;
-    _readByte(AXP202_COULOMB_CTL, 1, buffer);
-    return buffer[1];
+    _readByte(AXP202_COULOMB_CTL, 1, &buffer);
+    return buffer;
 }
 
 
