@@ -1809,6 +1809,5 @@ int AXP20X_Class::setSleep()
     if (ret != 0)return AXP_FAIL;
     ret = _readByte(AXP202_VOFF_SET, 1, &val);
     if (ret != 0)return AXP_FAIL;
-
-    return val == 0X0B ? AXP_PASS : AXP_FAIL;
+    return (val & _BV(3)) ? AXP_PASS : AXP_FAIL;
 }
