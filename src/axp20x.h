@@ -746,6 +746,9 @@ public:
     int getChargeControlCur();
     int setChargeControlCur(uint16_t mA);
 
+
+    int setSleep();
+
 private:
     uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl5)
     {
