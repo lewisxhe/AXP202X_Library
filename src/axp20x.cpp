@@ -275,7 +275,11 @@ float AXP20X_Class::getTemp()
 {
     if (!_init)
         return AXP_NOT_INIT;
-    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4) * AXP202_INTERNAL_TEMP_STEP;
+    // Internal temperature
+    // 000H => -144.7℃
+    // STEP => 0.1℃
+    // FFFH => 264.8℃
+    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4)  * AXP202_INTERNAL_TEMP_STEP  - 144.7;
 }
 
 float AXP20X_Class::getTSTemp()
