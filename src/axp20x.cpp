@@ -91,6 +91,7 @@ int AXP20X_Class::_axp_probe()
     return AXP_FAIL;
 }
 
+#ifdef ARDUINO
 int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
 {
     _i2cPort = &port; //Grab which port the user wants us to use
@@ -99,6 +100,7 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
 
     return _axp_probe();
 }
+#endif
 
 int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr, bool isAxp173)
 {
@@ -216,7 +218,10 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
     }
 
     _writeByte(AXP202_LDO234_DC23_CTL, 1, &data);
+
+#ifdef ARDUINO
     delay(1);
+#endif
     _readByte(AXP202_LDO234_DC23_CTL, 1, &val);
     if (data == val) {
         _outputReg = val;
