@@ -1112,7 +1112,7 @@ int AXP20X_Class::enableChargeing(bool en)
     if (!_init)
         return AXP_NOT_INIT;
     _readByte(AXP202_CHARGE1, 1, &val);
-    val |= (1 << 7);
+    val = en ? (val | _BV(7)) : val & (~_BV(7));
     _writeByte(AXP202_CHARGE1, 1, &val);
     return AXP_PASS;
 }
