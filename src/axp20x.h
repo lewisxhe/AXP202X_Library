@@ -656,6 +656,7 @@ public:
     int setTimer(uint8_t minutes);
     int offTimer();
     int clearTimerStatus();
+    bool getTimerStatus();
     /**
      * param:   axp202_startup_time_t or axp192_startup_time_t
      */
