@@ -91,6 +91,7 @@ int AXP20X_Class::_axp_probe()
     return AXP_FAIL;
 }
 
+#ifdef ARDUINO
 int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
 {
     _i2cPort = &port; //Grab which port the user wants us to use
@@ -99,6 +100,7 @@ int AXP20X_Class::begin(TwoWire &port, uint8_t addr, bool isAxp173)
 
     return _axp_probe();
 }
+#endif
 
 int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t addr, bool isAxp173)
 {
@@ -216,7 +218,10 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
     }
 
     _writeByte(AXP202_LDO234_DC23_CTL, 1, &data);
+
+#ifdef ARDUINO
     delay(1);
+#endif
     _readByte(AXP202_LDO234_DC23_CTL, 1, &val);
     if (data == val) {
         _outputReg = val;
@@ -275,7 +280,11 @@ float AXP20X_Class::getTemp()
 {
     if (!_init)
         return AXP_NOT_INIT;
-    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4) * AXP202_INTERNAL_TEMP_STEP;
+    // Internal temperature
+    // 000H => -144.7℃
+    // STEP => 0.1℃
+    // FFFH => 264.8℃
+    return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4)  * AXP202_INTERNAL_TEMP_STEP  - 144.7;
 }
 
 float AXP20X_Class::getTSTemp()
@@ -394,18 +403,18 @@ float AXP20X_Class::getCoulombData()
 
 uint8_t AXP20X_Class::getCoulombRegister()
 {
-    uint8_t buffer[1];
+    uint8_t buffer;
     if (!_init)
         return AXP_NOT_INIT;
-    _readByte(AXP202_COULOMB_CTL, 1, buffer);
-    return buffer[1];
+    _readByte(AXP202_COULOMB_CTL, 1, &buffer);
+    return buffer;
 }
 
 
 int AXP20X_Class::setCoulombRegister(uint8_t val)
 {
     if (!_init)
-        return AXP_NOT_INIT;    
+        return AXP_NOT_INIT;
     _writeByte(AXP202_COULOMB_CTL, 1, &val);
     return AXP_PASS;
 }
@@ -413,47 +422,47 @@ int AXP20X_Class::setCoulombRegister(uint8_t val)
 
 int AXP20X_Class::EnableCoulombcounter(void)
 {
-   
-     if (!_init)
-        return AXP_NOT_INIT;    
-     uint8_t val = 0x80;    
+
+    if (!_init)
+        return AXP_NOT_INIT;
+    uint8_t val = 0x80;
     _writeByte(AXP202_COULOMB_CTL, 1, &val);
-    return AXP_PASS;    
+    return AXP_PASS;
 }
 
 int AXP20X_Class::DisableCoulombcounter(void)
 {
-   
-     if (!_init)
-        return AXP_NOT_INIT;    
-     uint8_t val = 0x00;    
+
+    if (!_init)
+        return AXP_NOT_INIT;
+    uint8_t val = 0x00;
     _writeByte(AXP202_COULOMB_CTL, 1, &val);
-    return AXP_PASS;    
+    return AXP_PASS;
 }
 
 int AXP20X_Class::StopCoulombcounter(void)
 {
-   
-     if (!_init)
-        return AXP_NOT_INIT;    
-     uint8_t val = 0xB8;    
+
+    if (!_init)
+        return AXP_NOT_INIT;
+    uint8_t val = 0xB8;
     _writeByte(AXP202_COULOMB_CTL, 1, &val);
-    return AXP_PASS;    
+    return AXP_PASS;
 }
 
 
 int AXP20X_Class::ClearCoulombcounter(void)
 {
-   
-     if (!_init)
-        return AXP_NOT_INIT;    
-     uint8_t val = 0xA0;    
+
+    if (!_init)
+        return AXP_NOT_INIT;
+    uint8_t val = 0xA0;
     _writeByte(AXP202_COULOMB_CTL, 1, &val);
-    return AXP_PASS;    
+    return AXP_PASS;
 }
 
 //-------------------------------------------------------
-// END 
+// END
 //-------------------------------------------------------
 
 
@@ -1103,7 +1112,7 @@ int AXP20X_Class::enableChargeing(bool en)
     if (!_init)
         return AXP_NOT_INIT;
     _readByte(AXP202_CHARGE1, 1, &val);
-    val |= (1 << 7);
+    val = en ? (val | _BV(7)) : val & (~_BV(7));
     _writeByte(AXP202_CHARGE1, 1, &val);
     return AXP_PASS;
 }
@@ -1777,16 +1786,19 @@ int AXP20X_Class::setChargeControlCur(uint16_t mA)
         return AXP_NOT_INIT;
     switch (_chip_id) {
     case AXP202_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        val &= 0b11110000;
         mA -= 300;
-        val = mA / 100;
+        val |= (mA / 100);
         _writeByte(AXP202_CHARGE1, 1, &val);
         return AXP_PASS;
     case AXP192_CHIP_ID:
-    case AXP173_CHIP_ID:    
-        val = mA;
-        if(val > AXP1XX_CHARGE_CUR_1320MA){
-            val = AXP1XX_CHARGE_CUR_1320MA;
-        }
+    case AXP173_CHIP_ID:
+        _readByte(AXP202_CHARGE1, 1, &val);
+        val &= 0b11110000;
+        if (mA > AXP1XX_CHARGE_CUR_1320MA)
+            mA = AXP1XX_CHARGE_CUR_1320MA;
+        val |= mA;
         _writeByte(AXP202_CHARGE1, 1, &val);
         return AXP_PASS;
     default:
@@ -1795,3 +1807,16 @@ int AXP20X_Class::setChargeControlCur(uint16_t mA)
     return AXP_NOT_SUPPORT;
 }
 
+int AXP20X_Class::setSleep()
+{
+    int ret;
+    uint8_t val  = 0;
+    ret = _readByte(AXP202_VOFF_SET, 1, &val);
+    if (ret != 0)return AXP_FAIL;
+    val |= _BV(3);
+    ret = _writeByte(AXP202_VOFF_SET, 1, &val);
+    if (ret != 0)return AXP_FAIL;
+    ret = _readByte(AXP202_VOFF_SET, 1, &val);
+    if (ret != 0)return AXP_FAIL;
+    return (val & _BV(3)) ? AXP_PASS : AXP_FAIL;
+}
