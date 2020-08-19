@@ -392,7 +392,7 @@ float AXP20X_Class::getCoulombData()
         return AXP_NOT_INIT;
     uint32_t charge = getBattChargeCoulomb(), discharge = getBattDischargeCoulomb();
     uint8_t rate = getAdcSamplingRate();
-    float result = 65536.0 * 0.5 * (charge - discharge) / 3600.0 / rate;
+    float result = 65536.0 * 0.5 * ((float)charge - (float)discharge) / 3600.0 / rate;
     return result;
 }
 
