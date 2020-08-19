@@ -1265,7 +1265,7 @@ int AXP20X_Class::setTimer(uint8_t minutes)
 {
     if (!_init)
         return AXP_NOT_INIT;
-    if (_chip_id == AXP202_CHIP_ID) {
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
         if (minutes > 63) {
             return AXP_ARG_INVALID;
         }
@@ -1279,7 +1279,7 @@ int AXP20X_Class::offTimer()
 {
     if (!_init)
         return AXP_NOT_INIT;
-    if (_chip_id == AXP202_CHIP_ID) {
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
         uint8_t minutes = 0x80;
         _writeByte(AXP202_TIMER_CTL, 1, &minutes);
         return AXP_PASS;
@@ -1291,12 +1291,24 @@ int AXP20X_Class::clearTimerStatus()
 {
     if (!_init)
         return AXP_NOT_INIT;
-    if (_chip_id == AXP202_CHIP_ID) {
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
         uint8_t val;
         _readByte(AXP202_TIMER_CTL, 1, &val);
         val |= 0x80;
         _writeByte(AXP202_TIMER_CTL, 1, &val);
         return AXP_PASS;
+    }
+    return AXP_NOT_SUPPORT;
+}
+
+bool AXP20X_Class::getTimerStatus()
+{
+    if (!_init)
+        return AXP_NOT_INIT;
+    if (_chip_id == AXP202_CHIP_ID || _chip_id == AXP192_CHIP_ID) {
+        uint8_t val;
+        _readByte(AXP202_TIMER_CTL, 1, &val);
+        return ( val & 0x80 ) >> 7;
     }
     return AXP_NOT_SUPPORT;
 }
