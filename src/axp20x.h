@@ -344,13 +344,13 @@ typedef enum {
     AXP_LONGPRESS_TIME_1S5,
     AXP_LONGPRESS_TIME_2S,
     AXP_LONGPRESS_TIME_2S5,
-} axp_loonPress_time_t;
+} axp_longPress_time_t;
 
 typedef enum {
     AXP_POWER_OFF_TIME_4S,
-    AXP_POWER_OFF_TIME_65,
+    AXP_POWER_OFF_TIME_6S,
     AXP_POWER_OFF_TIME_8S,
-    AXP_POWER_OFF_TIME_16S,
+    AXP_POWER_OFF_TIME_10S,
 } axp_poweroff_time_t;
 
 //REG 33H: Charging control 1 Charging target-voltage setting
