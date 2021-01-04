@@ -1,5 +1,13 @@
 /////////////////////////////////////////////////////////////////
 /*
+           __   _______ ___   ___ ___
+     /\    \ \ / /  __ \__ \ / _ \__ \
+    /  \    \ V /| |__) | ) | | | | ) |
+   / /\ \    > < |  ___/ / /| | | |/ /
+  / ____ \  / . \| |    / /_| |_| / /_
+ /_/    \_\/_/ \_\_|   |____|\___/____|
+
+
 MIT License
 
 Copyright (c) 2019 lewis he
@@ -64,7 +72,7 @@ const uint8_t AXP20X_Class::targetVolParams[] = {
 // Power Output Control register
 uint8_t AXP20X_Class::_outputReg;
 
-int AXP20X_Class::_axp_probe()
+int AXP20X_Class::_axp_probe(void)
 {
     uint8_t data;
     if (_isAxp173) {
@@ -113,7 +121,7 @@ int AXP20X_Class::begin(axp_com_fptr_t read_cb, axp_com_fptr_t write_cb, uint8_t
 }
 
 //Only axp192 chip
-bool AXP20X_Class::isDCDC1Enable()
+bool AXP20X_Class::isDCDC1Enable(void)
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_DCDC1);
@@ -122,7 +130,7 @@ bool AXP20X_Class::isDCDC1Enable()
     return false;
 }
 
-bool AXP20X_Class::isExtenEnable()
+bool AXP20X_Class::isExtenEnable(void)
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_EXTEN);
@@ -136,7 +144,7 @@ bool AXP20X_Class::isExtenEnable()
     return false;
 }
 
-bool AXP20X_Class::isLDO2Enable()
+bool AXP20X_Class::isLDO2Enable(void)
 {
     if (_chip_id == AXP173_CHIP_ID) {
         return IS_OPEN(_outputReg, AXP173_LDO2);
@@ -145,7 +153,7 @@ bool AXP20X_Class::isLDO2Enable()
     return IS_OPEN(_outputReg, AXP202_LDO2);
 }
 
-bool AXP20X_Class::isLDO3Enable()
+bool AXP20X_Class::isLDO3Enable(void)
 {
     if (_chip_id == AXP192_CHIP_ID)
         return IS_OPEN(_outputReg, AXP192_LDO3);
@@ -156,7 +164,7 @@ bool AXP20X_Class::isLDO3Enable()
     return false;
 }
 
-bool AXP20X_Class::isLDO4Enable()
+bool AXP20X_Class::isLDO4Enable(void)
 {
     if (_chip_id == AXP202_CHIP_ID)
         return IS_OPEN(_outputReg, AXP202_LDO4);
@@ -165,7 +173,7 @@ bool AXP20X_Class::isLDO4Enable()
     return false;
 }
 
-bool AXP20X_Class::isDCDC2Enable()
+bool AXP20X_Class::isDCDC2Enable(void)
 {
     if (_chip_id == AXP173_CHIP_ID) {
         uint8_t data;
@@ -176,7 +184,7 @@ bool AXP20X_Class::isDCDC2Enable()
     return IS_OPEN(_outputReg, AXP202_DCDC2);
 }
 
-bool AXP20X_Class::isDCDC3Enable()
+bool AXP20X_Class::isDCDC3Enable(void)
 {
     if (_chip_id == AXP173_CHIP_ID)
         return false;
@@ -230,7 +238,7 @@ int AXP20X_Class::setPowerOutPut(uint8_t ch, bool en)
     return AXP_FAIL;
 }
 
-bool AXP20X_Class::isChargeing()
+bool AXP20X_Class::isChargeing(void)
 {
     uint8_t reg;
     if (!_init)
@@ -239,7 +247,7 @@ bool AXP20X_Class::isChargeing()
     return IS_OPEN(reg, 6);
 }
 
-bool AXP20X_Class::isBatteryConnect()
+bool AXP20X_Class::isBatteryConnect(void)
 {
     uint8_t reg;
     if (!_init)
@@ -248,35 +256,35 @@ bool AXP20X_Class::isBatteryConnect()
     return IS_OPEN(reg, 5);
 }
 
-float AXP20X_Class::getAcinVoltage()
+float AXP20X_Class::getAcinVoltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_ACIN_VOL_H8, AXP202_ACIN_VOL_L4) * AXP202_ACIN_VOLTAGE_STEP;
 }
 
-float AXP20X_Class::getAcinCurrent()
+float AXP20X_Class::getAcinCurrent(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_ACIN_CUR_H8, AXP202_ACIN_CUR_L4) * AXP202_ACIN_CUR_STEP;
 }
 
-float AXP20X_Class::getVbusVoltage()
+float AXP20X_Class::getVbusVoltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_VBUS_VOL_H8, AXP202_VBUS_VOL_L4) * AXP202_VBUS_VOLTAGE_STEP;
 }
 
-float AXP20X_Class::getVbusCurrent()
+float AXP20X_Class::getVbusCurrent(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_VBUS_CUR_H8, AXP202_VBUS_CUR_L4) * AXP202_VBUS_CUR_STEP;
 }
 
-float AXP20X_Class::getTemp()
+float AXP20X_Class::getTemp(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -287,21 +295,21 @@ float AXP20X_Class::getTemp()
     return _getRegistResult(AXP202_INTERNAL_TEMP_H8, AXP202_INTERNAL_TEMP_L4)  * AXP202_INTERNAL_TEMP_STEP  - 144.7;
 }
 
-float AXP20X_Class::getTSTemp()
+float AXP20X_Class::getTSTemp(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_TS_IN_H8, AXP202_TS_IN_L4) * AXP202_TS_PIN_OUT_STEP;
 }
 
-float AXP20X_Class::getGPIO0Voltage()
+float AXP20X_Class::getGPIO0Voltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_GPIO0_VOL_ADC_H8, AXP202_GPIO0_VOL_ADC_L4) * AXP202_GPIO0_STEP;
 }
 
-float AXP20X_Class::getGPIO1Voltage()
+float AXP20X_Class::getGPIO1Voltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -313,7 +321,7 @@ Note: the battery power formula:
 Pbat =2* register value * Voltage LSB * Current LSB / 1000.
 (Voltage LSB is 1.1mV; Current LSB is 0.5mA, and unit of calculation result is mW.)
 */
-float AXP20X_Class::getBattInpower()
+float AXP20X_Class::getBattInpower(void)
 {
     float rslt;
     uint8_t hv, mv, lv;
@@ -327,14 +335,14 @@ float AXP20X_Class::getBattInpower()
     return rslt;
 }
 
-float AXP20X_Class::getBattVoltage()
+float AXP20X_Class::getBattVoltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistResult(AXP202_BAT_AVERVOL_H8, AXP202_BAT_AVERVOL_L4) * AXP202_BATT_VOLTAGE_STEP;
 }
 
-float AXP20X_Class::getBattChargeCurrent()
+float AXP20X_Class::getBattChargeCurrent(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -348,14 +356,14 @@ float AXP20X_Class::getBattChargeCurrent()
     }
 }
 
-float AXP20X_Class::getBattDischargeCurrent()
+float AXP20X_Class::getBattDischargeCurrent(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
     return _getRegistH8L5(AXP202_BAT_AVERDISCHGCUR_H8, AXP202_BAT_AVERDISCHGCUR_L5) * AXP202_BATT_DISCHARGE_CUR_STEP;
 }
 
-float AXP20X_Class::getSysIPSOUTVoltage()
+float AXP20X_Class::getSysIPSOUTVoltage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -368,7 +376,7 @@ C= 65536 * current LSB *（charge coulomb counter value - discharge coulomb coun
 3600 / ADC sample rate. Refer to REG84H setting for ADC sample rate；the current LSB is
 0.5mA；unit of the calculation result is mAh. ）
 */
-uint32_t AXP20X_Class::getBattChargeCoulomb()
+uint32_t AXP20X_Class::getBattChargeCoulomb(void)
 {
     uint8_t buffer[4];
     if (!_init)
@@ -377,7 +385,7 @@ uint32_t AXP20X_Class::getBattChargeCoulomb()
     return (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3];
 }
 
-uint32_t AXP20X_Class::getBattDischargeCoulomb()
+uint32_t AXP20X_Class::getBattDischargeCoulomb(void)
 {
     uint8_t buffer[4];
     if (!_init)
@@ -386,7 +394,7 @@ uint32_t AXP20X_Class::getBattDischargeCoulomb()
     return (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3];
 }
 
-float AXP20X_Class::getCoulombData()
+float AXP20X_Class::getCoulombData(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -401,7 +409,7 @@ float AXP20X_Class::getCoulombData()
 // New Coulomb functions  by MrFlexi
 //-------------------------------------------------------
 
-uint8_t AXP20X_Class::getCoulombRegister()
+uint8_t AXP20X_Class::getCoulombRegister(void)
 {
     uint8_t buffer;
     if (!_init)
@@ -467,7 +475,7 @@ int AXP20X_Class::ClearCoulombcounter(void)
 
 
 
-uint8_t AXP20X_Class::getAdcSamplingRate()
+uint8_t AXP20X_Class::getAdcSamplingRate(void)
 {
     //axp192 same axp202 aregister address 0x84
     if (!_init)
@@ -636,7 +644,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
     return AXP_PASS;
 }
 
-int AXP20X_Class::readIRQ()
+int AXP20X_Class::readIRQ(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -658,7 +666,7 @@ int AXP20X_Class::readIRQ()
     }
 }
 
-void AXP20X_Class::clearIRQ()
+void AXP20X_Class::clearIRQ(void)
 {
     uint8_t val = 0xFF;
     switch (_chip_id) {
@@ -679,90 +687,90 @@ void AXP20X_Class::clearIRQ()
     memset(_irq, 0, sizeof(_irq));
 }
 
-bool AXP20X_Class::isAcinOverVoltageIRQ()
+bool AXP20X_Class::isAcinOverVoltageIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(7));
 }
 
-bool AXP20X_Class::isAcinPlugInIRQ()
+bool AXP20X_Class::isAcinPlugInIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(6));
 }
 
-bool AXP20X_Class::isAcinRemoveIRQ()
+bool AXP20X_Class::isAcinRemoveIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(5));
 }
 
-bool AXP20X_Class::isVbusOverVoltageIRQ()
+bool AXP20X_Class::isVbusOverVoltageIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(4));
 }
 
-bool AXP20X_Class::isVbusPlugInIRQ()
+bool AXP20X_Class::isVbusPlugInIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(3));
 }
 
-bool AXP20X_Class::isVbusRemoveIRQ()
+bool AXP20X_Class::isVbusRemoveIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(2));
 }
 
-bool AXP20X_Class::isVbusLowVHOLDIRQ()
+bool AXP20X_Class::isVbusLowVHOLDIRQ(void)
 {
     return (bool)(_irq[0] & BIT_MASK(1));
 }
 
-bool AXP20X_Class::isBattPlugInIRQ()
+bool AXP20X_Class::isBattPlugInIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(7));
 }
-bool AXP20X_Class::isBattRemoveIRQ()
+bool AXP20X_Class::isBattRemoveIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(6));
 }
-bool AXP20X_Class::isBattEnterActivateIRQ()
+bool AXP20X_Class::isBattEnterActivateIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(5));
 }
-bool AXP20X_Class::isBattExitActivateIRQ()
+bool AXP20X_Class::isBattExitActivateIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(4));
 }
-bool AXP20X_Class::isChargingIRQ()
+bool AXP20X_Class::isChargingIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(3));
 }
-bool AXP20X_Class::isChargingDoneIRQ()
+bool AXP20X_Class::isChargingDoneIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(2));
 }
-bool AXP20X_Class::isBattTempLowIRQ()
+bool AXP20X_Class::isBattTempLowIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(1));
 }
-bool AXP20X_Class::isBattTempHighIRQ()
+bool AXP20X_Class::isBattTempHighIRQ(void)
 {
     return (bool)(_irq[1] & BIT_MASK(0));
 }
 
-bool AXP20X_Class::isPEKShortPressIRQ()
+bool AXP20X_Class::isPEKShortPressIRQ(void)
 {
     return (bool)(_irq[2] & BIT_MASK(1));
 }
 
-bool AXP20X_Class::isPEKLongtPressIRQ()
+bool AXP20X_Class::isPEKLongtPressIRQ(void)
 {
     return (bool)(_irq[2] & BIT_MASK(0));
 }
 
-bool AXP20X_Class::isTimerTimeoutIRQ()
+bool AXP20X_Class::isTimerTimeoutIRQ(void)
 {
     return (bool)(_irq[4] & BIT_MASK(7));
 }
 
-bool AXP20X_Class::isVBUSPlug()
+bool AXP20X_Class::isVBUSPlug(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -789,7 +797,7 @@ int AXP20X_Class::setDCDC2Voltage(uint16_t mv)
     return AXP_PASS;
 }
 
-uint16_t AXP20X_Class::getDCDC2Voltage()
+uint16_t AXP20X_Class::getDCDC2Voltage(void)
 {
     uint8_t val = 0;
     //! axp173/192/202 same register
@@ -797,7 +805,7 @@ uint16_t AXP20X_Class::getDCDC2Voltage()
     return val * 25 + 700;
 }
 
-uint16_t AXP20X_Class::getDCDC3Voltage()
+uint16_t AXP20X_Class::getDCDC3Voltage(void)
 {
     if (!_init)
         return 0;
@@ -855,7 +863,7 @@ int AXP20X_Class::setLDO2Voltage(uint16_t mv)
     return AXP_FAIL;
 }
 
-uint16_t AXP20X_Class::getLDO2Voltage()
+uint16_t AXP20X_Class::getLDO2Voltage(void)
 {
     uint8_t rVal;
     if (_chip_id == AXP202_CHIP_ID) {
@@ -910,7 +918,7 @@ int AXP20X_Class::setLDO3Voltage(uint16_t mv)
     return AXP_FAIL;
 }
 
-uint16_t AXP20X_Class::getLDO3Voltage()
+uint16_t AXP20X_Class::getLDO3Voltage(void)
 {
     uint8_t rVal;
     if (!_init)
@@ -953,7 +961,7 @@ int AXP20X_Class::setLDO4Voltage(uint16_t mv)
     return AXP_PASS;
 }
 
-uint16_t AXP20X_Class::getLDO4Voltage()
+uint16_t AXP20X_Class::getLDO4Voltage(void)
 {
     const uint16_t ldo4_table[] = {1250, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 2700, 2800, 3000, 3100, 3200, 3300};
     if (!_init)
@@ -1067,7 +1075,7 @@ int AXP20X_Class::setTimeOutShutdown(bool en)
     return AXP_PASS;
 }
 
-int AXP20X_Class::shutdown()
+int AXP20X_Class::shutdown(void)
 {
     uint8_t val;
     if (!_init)
@@ -1078,7 +1086,7 @@ int AXP20X_Class::shutdown()
     return AXP_PASS;
 }
 
-float AXP20X_Class::getSettingChargeCurrent()
+float AXP20X_Class::getSettingChargeCurrent(void)
 {
     uint8_t val;
     if (!_init)
@@ -1090,7 +1098,7 @@ float AXP20X_Class::getSettingChargeCurrent()
     return cur;
 }
 
-bool AXP20X_Class::isChargeingEnable()
+bool AXP20X_Class::isChargeingEnable(void)
 {
     uint8_t val;
     if (!_init)
@@ -1131,7 +1139,7 @@ int AXP20X_Class::setChargingTargetVoltage(axp_chargeing_vol_t param)
     return AXP_PASS;
 }
 
-int AXP20X_Class::getBattPercentage()
+int AXP20X_Class::getBattPercentage(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -1175,7 +1183,7 @@ int AXP20X_Class::setChgLEDMode(axp_chgled_mode_t mode)
     return AXP_PASS;
 }
 
-int AXP20X_Class::debugCharging()
+int AXP20X_Class::debugCharging(void)
 {
     uint8_t val;
     _readByte(AXP202_CHARGE1, 1, &val);
@@ -1196,7 +1204,7 @@ int AXP20X_Class::debugCharging()
     return AXP_PASS;
 }
 
-int AXP20X_Class::debugStatus()
+int AXP20X_Class::debugStatus(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -1209,7 +1217,7 @@ int AXP20X_Class::debugStatus()
     return AXP_PASS;
 }
 
-int AXP20X_Class::limitingOff()
+int AXP20X_Class::limitingOff(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -1246,7 +1254,7 @@ int AXP20X_Class::setDCDC1Voltage(uint16_t mv)
 }
 
 // Only AXP129 chip and AXP173
-uint16_t AXP20X_Class::getDCDC1Voltage()
+uint16_t AXP20X_Class::getDCDC1Voltage(void)
 {
     if (_chip_id != AXP192_CHIP_ID && _chip_id != AXP173_CHIP_ID)
         return AXP_FAIL;
@@ -1275,7 +1283,7 @@ int AXP20X_Class::setTimer(uint8_t minutes)
     return AXP_NOT_SUPPORT;
 }
 
-int AXP20X_Class::offTimer()
+int AXP20X_Class::offTimer(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -1287,7 +1295,7 @@ int AXP20X_Class::offTimer()
     return AXP_NOT_SUPPORT;
 }
 
-int AXP20X_Class::clearTimerStatus()
+int AXP20X_Class::clearTimerStatus(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
@@ -1301,7 +1309,7 @@ int AXP20X_Class::clearTimerStatus()
     return AXP_NOT_SUPPORT;
 }
 
-bool AXP20X_Class::getTimerStatus()
+bool AXP20X_Class::getTimerStatus(void)
 {
     if (!_init)
         return AXP_NOT_INIT;
