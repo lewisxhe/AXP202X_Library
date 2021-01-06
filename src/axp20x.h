@@ -833,8 +833,8 @@ public:
     int         getChargeControlCur(void);
     int         setChargeControlCur(uint16_t mA);
 
-    uint16_t    getPowerDonwVoltage(void);
-    int         setPowerDonwVoltage(uint16_t mv);
+    uint16_t    getPowerDownVoltage(void);
+    int         setPowerDownVoltage(uint16_t mv);
     int         setCurrentLimitControl(axp202_limit_setting_t opt);
     int         setCurrentLimitControl(axp192_limit_setting_t opt);
 

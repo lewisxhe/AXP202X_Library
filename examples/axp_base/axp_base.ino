@@ -56,9 +56,9 @@ void setup()
     uint16_t level2 = axp.getVWarningLevel2();
     Serial.printf("getVWarningLevel1:%u mV \n", level1 );
     Serial.printf("getVWarningLevel2:%u mV \n", level2);
-    Serial.printf("getPowerDonwVoltage:%u mV \n", axp.getPowerDonwVoltage());
-    axp.setPowerDonwVoltage(2600);
-    Serial.printf("getPowerDonwVoltage:%u mV \n", axp.getPowerDonwVoltage());
+    Serial.printf("getPowerDonwVoltage:%u mV \n", axp.getPowerDownVoltage());
+    axp.setPowerDownVoltage(2600);
+    Serial.printf("getPowerDonwVoltage:%u mV \n", axp.getPowerDownVoltage());
     Serial.println();
 
     //! attachInterrupt to gpio 35

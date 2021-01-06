@@ -1968,7 +1968,7 @@ int AXP20X_Class::setSleep()
 }
 
 // VOFF =[2.6+(Bit2-0)*0.1]V
-int AXP20X_Class::setPowerDonwVoltage(uint16_t mv)
+int AXP20X_Class::setPowerDownVoltage(uint16_t mv)
 {
     int ret;
     uint8_t val  = 0;
@@ -1981,7 +1981,7 @@ int AXP20X_Class::setPowerDonwVoltage(uint16_t mv)
     return AXP_PASS ;
 }
 
-uint16_t AXP20X_Class::getPowerDonwVoltage(void)
+uint16_t AXP20X_Class::getPowerDownVoltage(void)
 {
     int ret = 0;
     uint8_t val  = 0;
