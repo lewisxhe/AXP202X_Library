@@ -2086,6 +2086,7 @@ axp202_dc_mode_t AXP20X_Class::getDCDCMode(void)
 
 int AXP20X_Class::enableLDO3VRC(bool en)
 {
+    ISCONNECETD(AXP_NOT_INIT);
     if (_chip_id != AXP202_CHIP_ID) {
         return AXP_NOT_SUPPORT;
     }
@@ -2099,6 +2100,7 @@ int AXP20X_Class::enableLDO3VRC(bool en)
 
 int AXP20X_Class::enableDC2VRC(bool en)
 {
+    ISCONNECETD(AXP_NOT_INIT);
     uint8_t val = 0;
     _readByte(AXP202_LDO3_DC2_DVM, 1, &val);
     val &= (~_BV(2));
@@ -2109,6 +2111,7 @@ int AXP20X_Class::enableDC2VRC(bool en)
 
 int AXP20X_Class::setLDO3VRC(axp202_vrc_control_t opt)
 {
+    ISCONNECETD(AXP_NOT_INIT);
     if (_chip_id != AXP202_CHIP_ID) {
         return AXP_NOT_SUPPORT;
     }
@@ -2122,6 +2125,7 @@ int AXP20X_Class::setLDO3VRC(axp202_vrc_control_t opt)
 
 int AXP20X_Class::setDC2VRC(axp202_vrc_control_t opt)
 {
+    ISCONNECETD(AXP_NOT_INIT);
     uint8_t val = 0;
     _readByte(AXP202_LDO3_DC2_DVM, 1, &val);
     val &= (~_BV(0));
@@ -2130,6 +2134,68 @@ int AXP20X_Class::setDC2VRC(axp202_vrc_control_t opt)
     return AXP_PASS;
 }
 
+int AXP20X_Class::setBackupChargeControl(bool en)
+{
+    ISCONNECETD(AXP_NOT_INIT);
+    uint8_t val = 0;
+    _readByte(AXP202_BACKUP_CHG, 1, &val);
+    val &= (~_BV(7));
+    val |= en;
+    _writeByte(AXP202_BACKUP_CHG, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setBackupChargeVoltage(axp202_backup_voltage_t opt)
+{
+    ISCONNECETD(AXP_NOT_INIT);
+    uint8_t val = 0;
+    _readByte(AXP202_BACKUP_CHG, 1, &val);
+    val &= 0x9F;
+    val |= opt;
+    _writeByte(AXP202_BACKUP_CHG, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setBackupChargeCurrent(axp202_backup_current_t opt)
+{
+    ISCONNECETD(AXP_NOT_INIT);
+    uint8_t val = 0;
+    _readByte(AXP202_BACKUP_CHG, 1, &val);
+    val &= 0xFC;
+    val |= opt;
+    _writeByte(AXP202_BACKUP_CHG, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setPrechargeTimeout(axp202_precharge_timeout_t opt)
+{
+    ISCONNECETD(AXP_NOT_INIT);
+    uint8_t val = 0;
+    _readByte(AXP202_CHARGE2, 1, &val);
+    val &= 0x3F;
+    val |= opt;
+    _writeByte(AXP202_CHARGE2, 1, &val);
+    return AXP_PASS;
+}
+
+int AXP20X_Class::setConstantCurrentTimeout(axp202_constant_current_t opt)
+{
+    ISCONNECETD(AXP_NOT_INIT);
+    uint8_t val = 0;
+    _readByte(AXP202_CHARGE2, 1, &val);
+    val &= 0xFC;
+    val |= opt;
+    _writeByte(AXP202_CHARGE2, 1, &val);
+    return AXP_PASS;
+}
+
+
+
+
+
+
+
+// Low-level I2C communication
 uint16_t AXP20X_Class::_getRegistH8L5(uint8_t regh8, uint8_t regl5)
 {
     uint8_t hv, lv;

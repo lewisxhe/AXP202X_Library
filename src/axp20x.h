@@ -613,6 +613,34 @@ typedef enum {
     AXP202_VRC_LEVEL1,  //25mV/31.250us=0.8mV/us
 } axp202_vrc_control_t;
 
+typedef enum {
+    AXP202_BACKUP_VOLTAGE_3V1,
+    AXP202_BACKUP_VOLTAGE_3V0,
+    AXP202_BACKUP_VOLTAGE_3V6,
+    AXP202_BACKUP_VOLTAGE_2V5,
+} axp202_backup_voltage_t;
+
+typedef enum {
+    AXP202_BACKUP_CURRENT_50UA,
+    AXP202_BACKUP_CURRENT_100UA,
+    AXP202_BACKUP_CURRENT_200UA,
+    AXP202_BACKUP_CURRENT_400UA,
+} axp202_backup_current_t;
+
+typedef enum {
+    AXP202_PRECHARGE_MINUTES_40,
+    AXP202_PRECHARGE_MINUTES_50,
+    AXP202_PRECHARGE_MINUTES_60,
+    AXP202_PRECHARGE_MINUTES_70,
+} axp202_precharge_timeout_t;
+
+typedef enum {
+    AXP202_CONSTANT_CUR_TIMEOUT_HOURS_6,
+    AXP202_CONSTANT_CUR_TIMEOUT_HOURS_8,
+    AXP202_CONSTANT_CUR_TIMEOUT_HOURS_10,
+    AXP202_CONSTANT_CUR_TIMEOUT_HOURS_12,
+} axp202_constant_current_t;
+
 typedef int (*axp_com_fptr_t)(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
 
 class AXP20X_Class
@@ -851,6 +879,19 @@ public:
     int         enableDC2VRC(bool en);
     int         setLDO3VRC(axp202_vrc_control_t opt);
     int         setDC2VRC(axp202_vrc_control_t opt);
+
+
+    //Backup battery charge control
+    int         setBackupChargeControl(bool en);
+    int         setBackupChargeVoltage(axp202_backup_voltage_t opt);
+    int         setBackupChargeCurrent(axp202_backup_current_t opt);
+
+
+    // Precharge timeout setting
+    int         setPrechargeTimeout(axp202_precharge_timeout_t opt);
+    // Set timeout in constant current mode
+    int         setConstantCurrentTimeout(axp202_constant_current_t opt);
+
 
 private:
     uint16_t _getRegistH8L5(uint8_t regh8, uint8_t regl5);
