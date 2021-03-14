@@ -2032,7 +2032,7 @@ int AXP20X_Class::setCurrentLimitControl(axp192_limit_setting_t opt)
 int AXP20X_Class::setVWarningLevel1(uint16_t mv)
 {
     ISCONNECETD(AXP_NOT_INIT);
-    uint8_t val = (mv / 0.0014 / 4 - 2.8672) / 1000.0;
+    uint8_t val = (mv - 2867) / 5.6;
     AXP_DEBUG("setVWarningLevel1:0x%x\n", val);
     _writeByte(AXP202_APS_WARNING1, 1, &val);
     return AXP_PASS;
@@ -2041,7 +2041,7 @@ int AXP20X_Class::setVWarningLevel1(uint16_t mv)
 int AXP20X_Class::setVWarningLevel2(uint16_t mv)
 {
     ISCONNECETD(AXP_NOT_INIT);
-    uint8_t val = (mv / 0.0014 / 4 - 2.8672) / 1000.0;
+    uint8_t val = (mv - 2867) / 5.6;
     AXP_DEBUG("setVWarningLevel2:0x%x\n", val);
     _writeByte(AXP202_APS_WARNING2, 1, &val);
     return AXP_PASS;
