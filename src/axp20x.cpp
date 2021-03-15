@@ -589,7 +589,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
     if (!_init)
         return AXP_NOT_INIT;
     uint8_t val, val1;
-    if (params & 0xFF) {
+    if (params & 0xFFUL) {
         val1 = params & 0xFF;
         _readByte(AXP202_INTEN1, 1, &val);
         if (en)
@@ -599,7 +599,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
         AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", AXP202_INTEN1, val);
         _writeByte(AXP202_INTEN1, 1, &val);
     }
-    if (params & 0xFF00) {
+    if (params & 0xFF00UL) {
         val1 = params >> 8;
         _readByte(AXP202_INTEN2, 1, &val);
         if (en)
@@ -610,7 +610,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
         _writeByte(AXP202_INTEN2, 1, &val);
     }
 
-    if (params & 0xFF0000) {
+    if (params & 0xFF0000UL) {
         val1 = params >> 16;
         _readByte(AXP202_INTEN3, 1, &val);
         if (en)
@@ -621,7 +621,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
         _writeByte(AXP202_INTEN3, 1, &val);
     }
 
-    if (params & 0xFF000000) {
+    if (params & 0xFF000000UL) {
         val1 = params >> 24;
         _readByte(AXP202_INTEN4, 1, &val);
         if (en)
@@ -632,7 +632,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
         _writeByte(AXP202_INTEN4, 1, &val);
     }
 
-    if (params & 0xFF00000000) {
+    if (params & 0xFF00000000ULL) {
         val1 = params >> 32;
         uint8_t reg = _chip_id == AXP192_CHIP_ID ? AXP192_INTEN5 : AXP202_INTEN5;
         _readByte(reg, 1, &val);
@@ -640,7 +640,7 @@ int AXP20X_Class::enableIRQ(uint64_t params, bool en)
             val |= val1;
         else
             val &= ~(val1);
-        AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", AXP202_INTEN5, val);
+        AXP_DEBUG("%s [0x%x]val:0x%x\n", en ? "enable" : "disable", reg, val);
         _writeByte(reg, 1, &val);
     }
     return AXP_PASS;
