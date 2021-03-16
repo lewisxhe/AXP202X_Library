@@ -2248,5 +2248,6 @@ int AXP20X_Class::_writeByte(uint8_t reg, uint8_t nbytes, uint8_t *data)
     }
     return _i2cPort->endTransmission();
 #endif
+    return 0;
 }
 
