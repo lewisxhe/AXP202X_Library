@@ -1974,7 +1974,7 @@ int AXP20X_Class::setPowerDownVoltage(uint16_t mv)
     uint8_t val  = 0;
     ret = _readByte(AXP202_VOFF_SET, 1, &val);
     if (ret != 0)return AXP_FAIL;
-    val &= AXP202_VOFF_MASK;
+    val &= ~(AXP202_VOFF_MASK);
     val |= ((mv - 2600) / 100);
     ret = _writeByte(AXP202_VOFF_SET, 1, &val);
     if (ret != 0)return AXP_FAIL;
@@ -1987,7 +1987,7 @@ uint16_t AXP20X_Class::getPowerDownVoltage(void)
     uint8_t val  = 0;
     ret = _readByte(AXP202_VOFF_SET, 1, &val);
     if (ret != 0)return 0;
-    val &= ~(AXP202_VOFF_MASK);
+    val &= AXP202_VOFF_MASK;
     uint16_t voff = val * 100 + 2600;
     return voff;
 }
